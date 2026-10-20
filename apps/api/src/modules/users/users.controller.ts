@@ -13,12 +13,12 @@ import {
   type UserResponseDto,
 } from '@meal-mate/schemas';
 
-import { UserService } from './users.service.js';
+import { UsersService } from './users.service.js';
 
 @ApiTags('Users')
 @Controller('users')
 export class UsersController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly usersService: UsersService) {}
 
   @Post()
   @ApiOperation({
@@ -35,6 +35,6 @@ export class UsersController {
   createUser(
     @Body({ schema: CreateUserSchema }) data: CreateUserDto,
   ): UserResponseDto {
-    return this.userService.create(data);
+    return this.usersService.create(data);
   }
 }
