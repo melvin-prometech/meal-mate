@@ -1,9 +1,16 @@
 import { NestFactory } from '@nestjs/core';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import {
+  SwaggerModule,
+  DocumentBuilder,
+} from '@nestjs/swagger';
+import { StandardSchemaValidationPipe } from '@nestjs/common';
+
 import { AppModule } from './modules/app/app.module.js';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.useGlobalPipes(new StandardSchemaValidationPipe());
 
   const config = new DocumentBuilder()
     .setTitle('My API')
