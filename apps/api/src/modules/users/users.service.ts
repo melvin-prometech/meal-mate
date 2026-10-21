@@ -15,16 +15,17 @@ export class UsersService {
   async create(data: CreateUserDto): Promise<UserResponseDto> {
     const user = this.usersRepository.create({
       firstName: data.firstName,
-      lastName: data.lastName
-      email: data.email,
+      lastName: data.lastName,
+      email: data.email
     });
 
     const savedUser = await this.usersRepository.save(user);
 
     return {
       id: savedUser.id,
-      name: `${savedUser.firstName} ${savedUser.lastName}`.trim(),
-      email: savedUser.email,
+      firstName: savedUser.firstName,
+      lastName: savedUser.lastName,
+      email: savedUser.email
     };
   }
 }

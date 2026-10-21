@@ -32,9 +32,9 @@ export class UsersController {
   @ApiBadRequestResponse({
     description: 'The request body is invalid.',
   })
-  createUser(
+  async createUser(
     @Body({ schema: CreateUserSchema }) data: CreateUserDto,
-  ): UserResponseDto {
+  ): Promise<UserResponseDto> {
     return this.usersService.create(data);
   }
 }
