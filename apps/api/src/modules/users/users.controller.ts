@@ -1,8 +1,9 @@
 
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
+  ApiOkResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
@@ -19,6 +20,22 @@ import { UsersService } from './users.service.js';
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @Get()
+  @ApiOperation({
+    summary: 'List users',
+    description:
+      'List all users',
+  })
+  @ApiOkResponse({
+    description: 'All users listed successfully.',
+  })
+  @ApiBadRequestResponse({
+    description: 'The request body is invalid.',
+  })
+  async findAll(): Promise<UserResponseDto[]> {
+    return this.usersService.findAll();
+  }
 
   @Post()
   @ApiOperation({
