@@ -1,8 +1,8 @@
 
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import z from 'zod';
-import type { CreateUserDto, UserResponseDto } from '@meal-mate/schemas';
+import type { CreateUserDto, UserResponseDto, UpdateUserDto, UpdateUserSchema } from '@meal-mate/schemas';
 import { UserResponseSchema } from '@meal-mate/schemas'
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity.js';
@@ -35,5 +35,22 @@ export class UsersService {
       lastName: savedUser.lastName,
       email: savedUser.email
     };
+  }
+
+  async update(
+    id: string,
+    updateUserDto: UpdateUserDto,
+  ): Promise<UserResponseDto> {
+    const user = await this.usersRepository.findOneBy({ id });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+
+    Object.assign(user, updateUserDto);
+
+    const updatedUser = await this.usersRepository.save(user);
+
+    return UserResponseSchema.parse(updatedUser);
   }
 }
