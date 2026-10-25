@@ -2,7 +2,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import z from 'zod';
-import type { CreateUserDto, UserResponseDto, UpdateUserDto, UpdateUserSchema } from '@meal-mate/schemas';
+import type { CreateUserDto, UserResponseDto, UpdateUserDto, FindUserDto } from '@meal-mate/schemas';
 import { UserResponseSchema } from '@meal-mate/schemas'
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity.js';
@@ -20,21 +20,23 @@ export class UsersService {
     return z.array(UserResponseSchema).parse(users);
   }
 
-  async create(data: CreateUserDto): Promise<UserResponseDto> {
-    const user = this.usersRepository.create({
-      firstName: data.firstName,
-      lastName: data.lastName,
-      email: data.email
+  async findOne(data: FindUserDto): Promise<UserResponseDto> {
+    const user = await this.usersRepository.findOneBy({
+      id: data.id,
     });
 
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return UserResponseSchema.parse(user);
+  }
+
+  async create(data: CreateUserDto): Promise<UserResponseDto> {
+    const user = this.usersRepository.create(data);
     const savedUser = await this.usersRepository.save(user);
 
-    return {
-      id: savedUser.id,
-      firstName: savedUser.firstName,
-      lastName: savedUser.lastName,
-      email: savedUser.email
-    };
+    return UserResponseSchema.parse(savedUser);
   }
 
   async update(
@@ -53,4 +55,13 @@ export class UsersService {
 
     return UserResponseSchema.parse(updatedUser);
   }
+  
+  async remove(id: string): Promise<void> {
+    const result = await this.usersRepository.delete(id);
+
+    if (result.affected === 0) {
+      throw new NotFoundException('User not found');
+    }
+  }
+
 }

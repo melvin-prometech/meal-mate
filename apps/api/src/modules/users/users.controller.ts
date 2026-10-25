@@ -1,5 +1,5 @@
 
-import { Param, Body, Controller, Get, Post, Patch } from '@nestjs/common';
+import { Param, Body, Controller, Get, Post, Patch, Delete } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
@@ -39,6 +39,21 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
+  @Get(':id')
+  @ApiOperation({
+    summary: 'Get a user',
+    description: 'Retrieve a user by their ID.',
+  })
+  @ApiOkResponse({
+    description: 'User retrieved successfully.',
+  })
+  @ApiNotFoundResponse({
+    description: 'User not found.',
+  })
+  async findOne(@Param('id') id: string): Promise<UserResponseDto> {
+    return this.usersService.findOne({ id });
+  }
+
   @Post()
   @ApiOperation({
     summary: 'Create a user',
@@ -70,5 +85,17 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<UserResponseDto> {
     return this.usersService.update(id, updateUserDto);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete a user' })
+  @ApiOkResponse({
+    description: 'User deleted successfully',
+  })
+  @ApiNotFoundResponse({
+    description: 'User not found',
+  })
+  async remove(@Param('id') id: string): Promise<void> {
+    return this.usersService.remove(id);
   }
 }
