@@ -10,7 +10,7 @@ import {
 } from '@nestjs/swagger';
 
 import { RecipesService } from './recipes.service.js';
-import { RecipeResponseDto } from '@meal-mate/schemas';
+import { RecipeResponseDto, CreateRecipeDto, CreateRecipeResponseSchema } from '@meal-mate/schemas';
 
 
 @ApiTags('Recipes')
@@ -33,4 +33,22 @@ export class RecipesController {
   async findAll(): Promise<RecipeResponseDto[]> {
     return this.recipesService.findAll();
   }
+
+  @Post()
+    @ApiOperation({
+      summary: 'Create a recipe',
+      description:
+        'Creates a new recipe using the required fields',
+    })
+    @ApiCreatedResponse({
+      description: 'The recipe was successfully created.',
+    })
+    @ApiBadRequestResponse({
+      description: 'The request body is invalid.',
+    })
+    async createUser(
+      @Body({ schema: CreateRecipeResponseSchema }) data: CreateRecipeDto,
+    ): Promise<CreateRecipeDto> {
+      return this.recipesService.create(data);
+    }
 }

@@ -2,7 +2,12 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
+  ManyToOne,
+  JoinColumn
 } from 'typeorm';
+
+import { Recipe } from './recipe.entity.js';
+import { Ingredient } from '../../ingredients/entities/ingredient.entity.js';
 
 @Entity('recipe_ingredients')
 export class RecipeIngredient {
@@ -12,8 +17,22 @@ export class RecipeIngredient {
   @Column({ type: 'uuid' })
   recipeId: string;
 
+  @ManyToOne(() => Recipe, (recipe) => recipe.recipeIngredients)
+  @JoinColumn({ name: 'recipeId' })
+  recipe: Recipe;
+
   @Column({ type: 'uuid' })
   ingredientId: string;
+
+  @ManyToOne(
+    () => Ingredient,
+    (ingredient) => ingredient.recipeIngredients,
+  )
+  @JoinColumn({ 
+    name: 'ingredientId',
+    referencedColumnName: 'id',
+  })
+  ingredient: Ingredient;
 
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
   quantity: number;

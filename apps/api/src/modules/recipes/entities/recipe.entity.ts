@@ -4,7 +4,10 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany
 } from 'typeorm';
+
+import { RecipeIngredient } from './recipe-ingredient.entity.js';
 
 @Entity('recipes')
 export class Recipe {
@@ -25,6 +28,12 @@ export class Recipe {
 
   @Column({ type: 'int' })
   servings: number;
+
+  @OneToMany(
+    () => RecipeIngredient,
+    (recipeIngredient) => recipeIngredient.recipe,
+  )
+  recipeIngredients: RecipeIngredient[];
 
   @Column({ type: 'uuid', nullable: true })
   createdBy: string;
