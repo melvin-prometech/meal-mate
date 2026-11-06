@@ -25,6 +25,10 @@ export class HouseholdMember {
   })
   role: HouseholdRole;
 
-  @CreateDateColumn({ type: 'timestamp' })
+  @CreateDateColumn({
+    type: 'timestamp',
+    precision: 0,
+    default: () => 'CURRENT_TIMESTAMP',
+  })
   joinedAt: Date;
 }

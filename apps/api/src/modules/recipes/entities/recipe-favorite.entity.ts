@@ -16,6 +16,10 @@ export class FavoriteRecipe {
   @Column({ type: 'uuid' })
   recipeId: string;
 
-  @CreateDateColumn({ type: 'timestamp' })
+  @CreateDateColumn({
+    type: 'timestamp',
+    precision: 0,
+    default: () => 'CURRENT_TIMESTAMP',
+  })
   createdAt: Date;
 }

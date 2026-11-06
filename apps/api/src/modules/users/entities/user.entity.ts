@@ -32,9 +32,18 @@ export class User {
   })
   role: UserRole;
 
-  @CreateDateColumn()
+  @CreateDateColumn({
+    type: 'timestamp',
+    precision: 0,
+    default: () => 'CURRENT_TIMESTAMP',
+  })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({
+    type: 'timestamp',
+    precision: 0,
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
   updatedAt: Date;
 }

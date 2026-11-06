@@ -19,6 +19,10 @@ export class HouseholdRecipe {
   @Column({ type: 'uuid' })
   addedBy: string;
 
-  @CreateDateColumn({ type: 'timestamp' })
+  @CreateDateColumn({
+    type: 'timestamp',
+    precision: 0,
+    default: () => 'CURRENT_TIMESTAMP',
+  })
   createdAt: Date;
 }
