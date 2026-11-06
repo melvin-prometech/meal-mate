@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import IngredientResponseSchema from '../ingredients/create.ingredient.schema.ts';
+import { IngredientResponseSchema } from '../ingredients/create.ingredient.schema.js';
 
 export const CreateRecipeIngredientSchema = z.object({
   name: z.string().min(2),
