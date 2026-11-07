@@ -1,14 +1,13 @@
-
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-
-import { Repository } from 'typeorm';
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { IngredientsController } from './ingredients.controller.js';
+import { IngredientsService } from './ingredients.service.js';
 import { Ingredient } from './entities/ingredient.entity.js';
 
-@Injectable()
-export class IngredientsService {
-  constructor(
-    @InjectRepository(Ingredient)
-    private readonly ingredientsRepository: Repository<Ingredient>,
-  ) {}
-}
+@Module({
+  imports: [TypeOrmModule.forFeature([Ingredient])],
+  controllers: [IngredientsController],
+  providers: [IngredientsService],
+  exports: [TypeOrmModule, IngredientsService]
+})
+export class IngredientsModule {}

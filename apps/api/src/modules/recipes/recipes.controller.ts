@@ -10,7 +10,15 @@ import {
 } from '@nestjs/swagger';
 
 import { RecipesService } from './recipes.service.js';
-import { RecipeResponseDto, CreateRecipeDto, CreateRecipeResponseSchema } from '@meal-mate/schemas';
+import {
+  CreateRecipeSchema,
+} from '@meal-mate/schemas';
+
+import type {
+  CreateRecipeDto,
+  CreateRecipeResponseDto,
+  RecipeResponseDto,
+} from '@meal-mate/schemas';
 
 
 @ApiTags('Recipes')
@@ -47,8 +55,8 @@ export class RecipesController {
       description: 'The request body is invalid.',
     })
     async createUser(
-      @Body({ schema: CreateRecipeResponseSchema }) data: CreateRecipeDto,
-    ): Promise<CreateRecipeDto> {
-      return this.recipesService.create(data);
+      @Body({ schema: CreateRecipeSchema }) data: CreateRecipeDto,
+    ): Promise<CreateRecipeResponseDto> {
+      return this.recipesService.createRecipe(data);
     }
 }

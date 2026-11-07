@@ -1,11 +1,15 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { DeepPartial } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import z from 'zod';
 import { Repository } from 'typeorm';
-import { CreateRecipeDto, RecipeResponseDto, RecipeResponseSchema } from "@meal-mate/schemas";
+import { CreateRecipeDto, CreateRecipeResponseDto, RecipeResponseDto, RecipeResponseSchema } from "@meal-mate/schemas";
 import { Recipe } from "./entities/recipe.entity.js";
 import { Ingredient } from '../ingredients/entities/ingredient.entity.js';
 import { RecipeIngredient } from './entities/recipe-ingredient.entity.js';
+import { IngredientsService } from '../ingredients/ingredients.service.js';
+import { User } from '../users/entities/user.entity.js';
+import { UsersService } from '../users/users.service.js';
 
 
 @Injectable()
@@ -13,12 +17,8 @@ export class RecipesService {
   constructor(
     @InjectRepository(Recipe)
     private readonly recipeRepository: Repository<Recipe>,
-
-    @InjectRepository(Ingredient)
-    private readonly ingredientRepository: Repository<Ingredient>,
-
-    @InjectRepository(RecipeIngredient)
-    private readonly recipeIngredientRepository: Repository<RecipeIngredient>,
+    private readonly usersService: UsersService,
+    private readonly ingredientsService: IngredientsService,
   ) {}
 
   async findAll(): Promise<RecipeResponseDto[]> {
@@ -27,10 +27,45 @@ export class RecipesService {
     return z.array(RecipeResponseSchema).parse(recipes);
   }
 
-  async create(data: CreateRecipeDto): Promise<RecipeResponseDto> {
-    const recipe = this.recipeRepository.create(data);
-    const savedRecipe = await this.recipeRepository.save(recipe);
-  
-    return RecipeResponseSchema.parse(savedRecipe);
+  async createRecipe(
+    data: CreateRecipeDto,
+  ): Promise<CreateRecipeResponseDto> {
+    return this.recipeRepository.manager.transaction(async (manager) => {
+
+      const recipeRepo = manager.getRepository(Recipe);
+      const userRepo = manager.getRepository(User);
+      const ingredientRepo = manager.getRepository(Ingredient);
+      const recipeIngredientRepo = manager.getRepository(RecipeIngredient);
+
+      const { ingredients, ...recipeData } = data;
+
+      if (data.createdBy && !(await this.usersService.exists(data.createdBy))) {
+        throw new NotFoundException('User not found');
+      }
+
+      const recipe = recipeRepo.create(recipeData);
+      const savedRecipe = await recipeRepo.save(recipe);
+
+      for (const ingredientData of ingredients) {
+        const ingredient = await this.ingredientsService.findOrCreate(
+          ingredientData.name,
+          ingredientRepo,
+        );
+
+        const recipeIngredientData: DeepPartial<RecipeIngredient> = {
+          recipeId: savedRecipe.id,
+          ingredientId: ingredient.id,
+          quantity: ingredientData.quantity,
+          unit: ingredientData.unit,
+          notes: ingredientData.notes,
+        };
+
+        const recipeIngredient = recipeIngredientRepo.create(recipeIngredientData);
+
+        await recipeIngredientRepo.save(recipeIngredient);
+      }
+
+      return savedRecipe;
+    });
   }
 }

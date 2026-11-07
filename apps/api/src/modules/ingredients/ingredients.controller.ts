@@ -1,6 +1,6 @@
 import { ApiTags } from "@nestjs/swagger";
 import { Controller } from "@nestjs/common";
-import { IngredientsService } from "./ingredients.module.js";
+import { IngredientsService } from "./ingredients.service.js";
 
 @ApiTags('Ingredients')
 @Controller('Ingredients')

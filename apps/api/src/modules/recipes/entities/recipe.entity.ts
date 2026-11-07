@@ -4,8 +4,10 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  OneToMany
+  OneToMany,
 } from 'typeorm';
+
+import type { Relation } from 'typeorm';
 
 import { RecipeIngredient } from './recipe-ingredient.entity.js';
 
@@ -18,7 +20,7 @@ export class Recipe {
   title: string;
 
   @Column({ type: 'text', nullable: true })
-  description: string;
+  description: string | null;
 
   @Column({ type: 'text' })
   instructions: string;
@@ -33,10 +35,10 @@ export class Recipe {
     () => RecipeIngredient,
     (recipeIngredient) => recipeIngredient.recipe,
   )
-  recipeIngredients: RecipeIngredient[];
+  recipeIngredients: Relation<RecipeIngredient[]>;
 
   @Column({ type: 'uuid', nullable: true })
-  createdBy: string;
+  createdBy: string | null;
 
   @CreateDateColumn({
     type: 'timestamp',

@@ -3,8 +3,9 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
-  JoinColumn
+  JoinColumn,
 } from 'typeorm';
+import type { Relation } from 'typeorm';
 
 import { Recipe } from './recipe.entity.js';
 import { Ingredient } from '../../ingredients/entities/ingredient.entity.js';
@@ -19,7 +20,7 @@ export class RecipeIngredient {
 
   @ManyToOne(() => Recipe, (recipe) => recipe.recipeIngredients)
   @JoinColumn({ name: 'recipeId' })
-  recipe: Recipe;
+  recipe: Relation<Recipe>;
 
   @Column({ type: 'uuid' })
   ingredientId: string;
@@ -32,14 +33,14 @@ export class RecipeIngredient {
     name: 'ingredientId',
     referencedColumnName: 'id',
   })
-  ingredient: Ingredient;
+  ingredient: Relation<Ingredient>;
 
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
-  quantity: number;
+  quantity: number | null;
 
   @Column({ type: 'varchar', length: 30, nullable: true })
-  unit: string;
+  unit: string | null;
 
   @Column({ type: 'varchar', length: 150, nullable: true })
-  notes: string;
+  notes: string | null;
 }

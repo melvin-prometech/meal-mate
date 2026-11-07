@@ -55,6 +55,10 @@ export class UsersService {
 
     return UserResponseSchema.parse(updatedUser);
   }
+
+  async exists(id: string): Promise<boolean> {
+    return this.usersRepository.existsBy({ id });
+  }
   
   async remove(id: string): Promise<void> {
     const result = await this.usersRepository.delete(id);

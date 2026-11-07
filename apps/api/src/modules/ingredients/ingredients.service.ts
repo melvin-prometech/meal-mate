@@ -1,13 +1,37 @@
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { IngredientsController } from './ingredients.controller.js';
-import { IngredientsService } from './ingredients.module.js';
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+
+import { Repository } from 'typeorm';
 import { Ingredient } from './entities/ingredient.entity.js';
 
-@Module({
-  imports: [TypeOrmModule.forFeature([Ingredient])],
-  controllers: [IngredientsController],
-  providers: [IngredientsService],
-  exports: [TypeOrmModule]
-})
-export class IngredientsModule {}
+@Injectable()
+export class IngredientsService {
+  constructor(
+    @InjectRepository(Ingredient)
+    private readonly ingredientRepository: Repository<Ingredient>,
+  ) {}
+
+async findOrCreate(
+    name: string,
+    repository: Repository<Ingredient>,
+  ): Promise<Ingredient> {
+    const normalizedName = name.trim().toLowerCase();
+
+    const existing = await repository
+      .createQueryBuilder('ingredient')
+      .where('LOWER(ingredient.name) = :name', {
+        name: normalizedName,
+      })
+      .getOne();
+
+    if (existing) {
+      return existing;
+    }
+
+    const ingredient = repository.create({
+      name: normalizedName,
+    });
+
+    return repository.save(ingredient);
+  }
+}
