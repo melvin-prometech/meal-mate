@@ -35,7 +35,17 @@ export class RecipeIngredient {
   })
   ingredient: Relation<Ingredient>;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    nullable: true,
+    transformer: {
+      to: (value: number | null) => value,
+      from: (value: string | null) =>
+        value === null ? null : Number(value),
+    },
+  })
   quantity: number | null;
 
   @Column({ type: 'varchar', length: 30, nullable: true })

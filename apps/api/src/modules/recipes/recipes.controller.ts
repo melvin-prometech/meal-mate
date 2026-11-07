@@ -12,6 +12,7 @@ import {
 import { RecipesService } from './recipes.service.js';
 import {
   CreateRecipeSchema,
+  RecipeResponseSchema
 } from '@meal-mate/schemas';
 
 import type {
@@ -59,4 +60,21 @@ export class RecipesController {
     ): Promise<CreateRecipeResponseDto> {
       return this.recipesService.createRecipe(data);
     }
+
+  @Get(':id')
+  @ApiOperation({
+    summary: 'Get a recipe',
+    description: 'Retrieve a recipe by their ID.',
+  })
+  @ApiOkResponse({
+    description: 'Recipe retrieved successfully.',
+  })
+  @ApiNotFoundResponse({
+    description: 'Recipe not found.',
+  })
+  async findOne(@Param('id') id: string): Promise<RecipeResponseDto> {
+    const recipe = await this.recipesService.findOne(id);
+    
+    return RecipeResponseSchema.parse(recipe);
+  }
 }

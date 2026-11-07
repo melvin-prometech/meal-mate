@@ -21,9 +21,36 @@ export class RecipesService {
   ) {}
 
   async findAll(): Promise<RecipeResponseDto[]> {
-    const recipes = await this.recipeRepository.find();
+    const recipes = await this.recipeRepository.find({
+      relations: {
+        recipeIngredients: {
+          ingredient: true,
+        },
+      },
+    });
 
-    return z.array(RecipeResponseSchema).parse(recipes);
+    const formattedRecipes = this.mapManyToResponseDto(recipes);
+
+    return z.array(RecipeResponseSchema).parse(formattedRecipes);
+  }
+
+  async findOne(id: string): Promise<RecipeResponseDto> {
+    const recipe = await this.recipeRepository.findOne({
+      where: { id },
+      relations: {
+        recipeIngredients: {
+          ingredient: true,
+        },
+      },
+    });
+
+    if (!recipe) {
+      throw new NotFoundException(`Recipe with ID "${id}" not found`);
+    }
+
+    const formattedRecipe = this.mapOneToResponseDto(recipe);
+
+    return RecipeResponseSchema.parse(formattedRecipe);
   }
 
   async createRecipe(
@@ -65,5 +92,22 @@ export class RecipesService {
 
       return { id: savedRecipe.id} ;
     });
+  }
+
+  private mapOneToResponseDto(
+    recipe: Recipe,
+  ): RecipeResponseDto {
+    const { recipeIngredients, ...rest } = recipe;
+
+    return {
+      ...rest,
+      ingredients: recipeIngredients ?? [],
+    };
+  }
+
+  private mapManyToResponseDto(
+    recipes: Recipe[],
+  ): RecipeResponseDto[] {
+    return recipes.map((recipe) => this.mapOneToResponseDto(recipe));
   }
 }
