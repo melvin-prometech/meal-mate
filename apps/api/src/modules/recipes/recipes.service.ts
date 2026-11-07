@@ -63,7 +63,7 @@ export class RecipesService {
         await recipeIngredientRepo.save(recipeIngredient);
       }
 
-      return savedRecipe;
+      return { id: savedRecipe.id} ;
     });
   }
 }
