@@ -8,7 +8,6 @@ import { Recipe } from "./entities/recipe.entity.js";
 import { Ingredient } from '../ingredients/entities/ingredient.entity.js';
 import { RecipeIngredient } from './entities/recipe-ingredient.entity.js';
 import { IngredientsService } from '../ingredients/ingredients.service.js';
-import { User } from '../users/entities/user.entity.js';
 import { UsersService } from '../users/users.service.js';
 
 
@@ -33,7 +32,6 @@ export class RecipesService {
     return this.recipeRepository.manager.transaction(async (manager) => {
 
       const recipeRepo = manager.getRepository(Recipe);
-      const userRepo = manager.getRepository(User);
       const ingredientRepo = manager.getRepository(Ingredient);
       const recipeIngredientRepo = manager.getRepository(RecipeIngredient);
 
