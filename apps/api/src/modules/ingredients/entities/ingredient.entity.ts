@@ -12,7 +12,7 @@ export class Ingredient {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', unique: true})
   name: string;
 
   @OneToMany(

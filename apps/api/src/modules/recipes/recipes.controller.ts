@@ -19,6 +19,7 @@ import type {
   CreateRecipeDto,
   CreateRecipeResponseDto,
   RecipeResponseDto,
+  UpdateRecipeDto
 } from '@meal-mate/schemas';
 
 
@@ -76,5 +77,32 @@ export class RecipesController {
     const recipe = await this.recipesService.findOne(id);
     
     return RecipeResponseSchema.parse(recipe);
+  }
+  
+  @Patch(':id')
+  @ApiOperation({ summary: 'Update a recipe' })
+  @ApiOkResponse({
+    description: 'Recipe updated successfully',
+  })
+  @ApiNotFoundResponse({
+    description: 'Recipe not found',
+  })
+  async update(
+    @Param('id') id: string,
+    @Body() updateRecipeDto: UpdateRecipeDto,
+  ): Promise<CreateRecipeResponseDto> {
+    return this.recipesService.updateRecipe(id, updateRecipeDto);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete a recipe' })
+  @ApiOkResponse({
+    description: 'Recipe deleted successfully',
+  })
+  @ApiNotFoundResponse({
+    description: 'Recipe not found',
+  })
+  async remove(@Param('id') id: string): Promise<void> {
+    return this.recipesService.remove(id);
   }
 }

@@ -94,6 +94,60 @@ export class RecipesService {
     });
   }
 
+  async updateRecipe(
+    id: string,
+    data: Partial<CreateRecipeDto>,
+  ): Promise<CreateRecipeResponseDto> {
+    return this.recipeRepository.manager.transaction(async (manager) => {
+      const recipeRepo = manager.getRepository(Recipe);
+      const ingredientRepo = manager.getRepository(Ingredient);
+      const recipeIngredientRepo = manager.getRepository(RecipeIngredient);
+
+      const recipe = await recipeRepo.findOne({ where: { id } });
+
+      if (!recipe) {
+        throw new NotFoundException(`Recipe with ID "${id}" not found`);
+      }
+
+      const { ingredients, ...recipeData } = data;
+
+      if (Object.keys(recipeData).length > 0) {
+        await recipeRepo.update(id, recipeData);
+      }
+
+      if (ingredients) {
+        await recipeIngredientRepo.delete({ recipeId: id });
+
+        for (const ingredientData of ingredients) {
+          const ingredient = await this.ingredientsService.findOrCreate(
+            ingredientData.name,
+            ingredientRepo,
+          );
+
+          const recipeIngredient = recipeIngredientRepo.create({
+            recipeId: id,
+            ingredientId: ingredient.id,
+            quantity: ingredientData.quantity,
+            unit: ingredientData.unit,
+            notes: ingredientData.notes,
+          });
+
+          await recipeIngredientRepo.save(recipeIngredient);
+        }
+      }
+
+      return { id: recipe.id}
+    });
+  }
+
+  async remove(id: string): Promise<void> {
+    const result = await this.recipeRepository.delete(id);
+
+    if (result.affected === 0) {
+      throw new NotFoundException('User not found');
+    }
+  }
+
   private mapOneToResponseDto(
     recipe: Recipe,
   ): RecipeResponseDto {
