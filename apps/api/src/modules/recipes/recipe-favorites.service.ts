@@ -44,6 +44,10 @@ export class RecipeFavoritesService {
     }
 
     async getUserFavorites(userId: string): Promise<RecipeResponseDto[]> {
+        if (!await this.usersService.exists(userId)) {
+            throw new NotFoundException('User not found');
+        }
+        
         const favorites = await this.favoriteRepository.find({
             where: { userId },
             relations: {
