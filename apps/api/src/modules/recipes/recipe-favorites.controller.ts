@@ -3,6 +3,7 @@ import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
   ApiNotFoundResponse,
+  ApiNoContentResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
@@ -50,5 +51,23 @@ export class RecipeFavoritesController {
         @Param('userId') userId: string,
     ): Promise<RecipeResponseDto[]> {
         return await this.favoritesService.getUserFavorites(userId);
+    }
+
+    @Delete(':recipeId')
+    @ApiOperation({
+        summary: 'Remove a favorite recipe',
+        description: 'Removes a recipe from the user\'s favorites list',
+    })
+    @ApiNoContentResponse({
+        description: 'The favorite recipe was successfully removed.',
+    })
+    @ApiNotFoundResponse({
+        description: 'Favorite recipe record not found.',
+    })
+    async remove(
+        @Param('userId') userId: string,
+        @Param('recipeId') recipeId: string,
+    ): Promise<void> {
+        await this.favoritesService.removeFavorite(userId, recipeId);
     }
 }

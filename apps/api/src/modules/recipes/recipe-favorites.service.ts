@@ -28,15 +28,15 @@ export class RecipeFavoritesService {
 
         const recipeExists = await this.recipeRepository.exists({ where: { id: recipeId } });
         if (!recipeExists) {
-        throw new NotFoundException(`Recipe with ID "${recipeId}" not found`);
+            throw new NotFoundException(`Recipe with ID "${recipeId}" not found`);
         }
 
         const existing = await this.favoriteRepository.findOne({
-        where: { userId, recipeId },
+            where: { userId, recipeId },
         });
 
         if (existing) {
-        throw new ConflictException('Recipe is already in favorites');
+            throw new ConflictException('Recipe is already in favorites');
         }
 
         const favorite = this.favoriteRepository.create({ userId, recipeId });
@@ -47,7 +47,7 @@ export class RecipeFavoritesService {
         if (!await this.usersService.exists(userId)) {
             throw new NotFoundException('User not found');
         }
-        
+
         const favorites = await this.favoriteRepository.find({
             where: { userId },
             relations: {
@@ -65,5 +65,22 @@ export class RecipeFavoritesService {
         const recipes = favorites.map((fav) => fav.recipe);
         
         return mapManyRecipesToResponseDto(recipes)
+    }
+
+    async removeFavorite(userId: string, recipeId: string): Promise<void> {
+        if (!await this.usersService.exists(userId)) {
+            throw new NotFoundException('User not found');
+        }
+        
+        const recipeExists = await this.recipeRepository.exists({ where: { id: recipeId } });
+        if (!recipeExists) {
+            throw new NotFoundException(`Recipe with ID "${recipeId}" not found`);
+        }
+
+        const result = await this.favoriteRepository.delete({ userId, recipeId });
+
+        if (result.affected === 0) {
+            throw new NotFoundException('Favorite recipe not found');
+        }
     }
 }  
