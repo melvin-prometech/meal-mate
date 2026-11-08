@@ -4,8 +4,11 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany
 } from 'typeorm';
 
+import type { Relation } from 'typeorm';
+import { HouseholdMember } from '../../households/entities/household-member.entity.js';
 import { UserRole } from '@meal-mate/schemas';
 
 @Entity()
@@ -46,4 +49,7 @@ export class User {
     onUpdate: 'CURRENT_TIMESTAMP',
   })
   updatedAt: Date;
+
+  @OneToMany(() => HouseholdMember, (membership) => membership.user)
+  householdMemberships: Relation<HouseholdMember[]>;
 }

@@ -4,7 +4,11 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
+
+import type { Relation } from 'typeorm';
+import { HouseholdMember } from './household-member.entity.js';
 
 @Entity('households')
 export class Household {
@@ -28,4 +32,7 @@ export class Household {
     onUpdate: 'CURRENT_TIMESTAMP',
   })
   updatedAt: Date;
+
+  @OneToMany(() => HouseholdMember, (member) => member.household)
+  members: Relation<HouseholdMember[]>;
 }
