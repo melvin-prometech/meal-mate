@@ -9,6 +9,7 @@ import { Ingredient } from '../ingredients/entities/ingredient.entity.js';
 import { RecipeIngredient } from './entities/recipe-ingredient.entity.js';
 import { IngredientsService } from '../ingredients/ingredients.service.js';
 import { UsersService } from '../users/users.service.js';
+import { mapManyRecipesToResponseDto, mapOneRecipeToResponseDto } from './lib/recipes.mapper.js';
 
 
 @Injectable()
@@ -29,7 +30,7 @@ export class RecipesService {
       },
     });
 
-    const formattedRecipes = this.mapManyToResponseDto(recipes);
+    const formattedRecipes = mapManyRecipesToResponseDto(recipes)
 
     return z.array(RecipeResponseSchema).parse(formattedRecipes);
   }
@@ -48,7 +49,7 @@ export class RecipesService {
       throw new NotFoundException(`Recipe with ID "${id}" not found`);
     }
 
-    const formattedRecipe = this.mapOneToResponseDto(recipe);
+    const formattedRecipe = mapOneRecipeToResponseDto(recipe);
 
     return RecipeResponseSchema.parse(formattedRecipe);
   }
@@ -146,22 +147,5 @@ export class RecipesService {
     if (result.affected === 0) {
       throw new NotFoundException('User not found');
     }
-  }
-
-  private mapOneToResponseDto(
-    recipe: Recipe,
-  ): RecipeResponseDto {
-    const { recipeIngredients, ...rest } = recipe;
-
-    return {
-      ...rest,
-      ingredients: recipeIngredients ?? [],
-    };
-  }
-
-  private mapManyToResponseDto(
-    recipes: Recipe[],
-  ): RecipeResponseDto[] {
-    return recipes.map((recipe) => this.mapOneToResponseDto(recipe));
   }
 }

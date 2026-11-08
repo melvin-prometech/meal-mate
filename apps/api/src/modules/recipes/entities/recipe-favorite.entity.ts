@@ -3,7 +3,12 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  ManyToOne,
+  JoinColumn
 } from 'typeorm';
+
+import { User } from '../../users/entities/user.entity.js';
+import { Recipe } from './recipe.entity.js';
 
 @Entity('favorite_recipes')
 export class FavoriteRecipe {
@@ -13,8 +18,17 @@ export class FavoriteRecipe {
   @Column({ type: 'uuid' })
   userId: string;
 
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'userId' })
+  user: User;
+
   @Column({ type: 'uuid' })
   recipeId: string;
+
+  @ManyToOne(() => Recipe, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'recipeId' })
+  recipe: Recipe;
+
 
   @CreateDateColumn({
     type: 'timestamp',
