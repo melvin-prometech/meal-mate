@@ -2,7 +2,7 @@ import z from 'zod';
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { HouseholdRole, RemoveHouseholdMemberDto } from '@meal-mate/schemas';
+import { FindHouseholdByIdDto, HouseholdRole, RemoveHouseholdMemberDto } from '@meal-mate/schemas';
 import { CreateHouseholdDto } from '@meal-mate/schemas';
 
 import { Household } from './entities/household.entity.js';
@@ -12,7 +12,7 @@ import { UsersService } from '../users/users.service.js';
 import { AddHouseholdMemberDto } from '@meal-mate/schemas';
 import { HouseholdResponseDto, HouseholdResponseSchema, HouseholdMemberResponseDto } from '@meal-mate/schemas';
 import { mapHouseholdsToResponseDto } from './lib/households-mapper.js';
-import { mapMemberToResponseDto } from './lib/households-mapper.js';
+import { mapMemberToResponseDto, mapHouseholdToResponseDto } from './lib/households-mapper.js';
 
 @Injectable()
 export class HouseholdsService {
@@ -38,6 +38,23 @@ export class HouseholdsService {
     const formatted = mapHouseholdsToResponseDto(households);
 
     return z.array(HouseholdResponseSchema).parse(formatted);
+  }
+
+  async findHouseholdById(householdId: string): Promise<HouseholdResponseDto> {
+    const household = await this.householdRepository.findOne({
+      where: { id: householdId },
+      relations: {
+        members: {
+          user: true, 
+        },
+      },
+    });
+
+    if (!household) {
+      throw new NotFoundException(`Household with ID "${householdId}" not found`);
+    }
+
+    return mapHouseholdToResponseDto(household);
   }
 
   async createHousehold(

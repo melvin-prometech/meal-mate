@@ -42,6 +42,23 @@ export class HouseholdsController {
         return await this.householdsService.findAll();
     }
 
+    @Get(':householdId')
+    @ApiOperation({
+        summary: 'Get household by ID',
+        description: 'Retrieves a single household by its ID including its members and their user details.',
+    })
+    @ApiOkResponse({
+        description: 'Successfully retrieved household.',
+    })
+    @ApiNotFoundResponse({
+        description: 'Household not found.',
+    })
+    async findOne(
+        @Param('householdId') householdId: string,
+    ): Promise<HouseholdResponseDto> {
+        return await this.householdsService.findHouseholdById(householdId);
+    }
+
     @Post('/:userId')
     @ApiOperation({
         summary: 'Create a new household',
@@ -82,8 +99,8 @@ export class HouseholdsController {
         description: 'Invalid request body.',
     })
     async addMember(
-    @Param('householdId') householdId: string,
-    @Body() dto: AddHouseholdMemberDto,
+        @Param('householdId') householdId: string,
+        @Body() dto: AddHouseholdMemberDto,
     ): Promise<HouseholdMemberResponseDto> {
         return await this.householdsService.addMember(householdId, dto);
     }
@@ -91,18 +108,18 @@ export class HouseholdsController {
 
     @Delete(':householdId/members')
     @ApiOperation({
-    summary: 'Remove a member from a household',
-    description: 'Removes a user from the specified household.',
+        summary: 'Remove a member from a household',
+        description: 'Removes a user from the specified household.',
     })
     @ApiNoContentResponse({
-    description: 'Member successfully removed.',
+        description: 'Member successfully removed.',
     })
     @ApiNotFoundResponse({
-    description: 'Household, user, or membership not found.',
+        description: 'Household, user, or membership not found.',
     })
     async removeMember(
-    @Param('householdId') householdId: string, 
-    @Body() dto: RemoveHouseholdMemberDto, 
+        @Param('householdId') householdId: string, 
+        @Body() dto: RemoveHouseholdMemberDto, 
     ): Promise<void> {
         await this.householdsService.removeMember(householdId, dto);
     }
