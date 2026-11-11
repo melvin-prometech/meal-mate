@@ -1,0 +1,51 @@
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import {
+  ApiBadRequestResponse,
+  ApiConflictResponse,
+  ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
+import { CreateHouseholdRecipeSchema, type CreateHouseholdRecipeDto, type RecipeResponseDto } from '@meal-mate/schemas';
+import { HouseholdRecipesService } from './household-recipes.service.js';
+
+@ApiTags('Household recipes')
+@Controller('household-recipes/:householdId')
+export class HouseholdRecipesController {
+  constructor(private readonly householdRecipesService: HouseholdRecipesService) {}
+
+  @Post()
+  @ApiOperation({ summary: 'Save a recipe to a household' })
+  @ApiCreatedResponse({ description: 'Recipe saved to household.' })
+  @ApiBadRequestResponse({ description: 'Request body is invalid.' })
+  @ApiConflictResponse({ description: 'Recipe is already saved in this household.' })
+  @ApiNotFoundResponse({ description: 'Household, recipe, or household member not found.' })
+  add(
+    @Param('householdId') householdId: string,
+    @Body({ schema: CreateHouseholdRecipeSchema }) dto: CreateHouseholdRecipeDto,
+  ) {
+    return this.householdRecipesService.add(householdId, dto.recipeId, dto.addedBy);
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'Get recipes saved in a household' })
+  @ApiOkResponse({ description: 'Household recipes retrieved.' })
+  @ApiNotFoundResponse({ description: 'Household not found.' })
+  findByHousehold(@Param('householdId') householdId: string): Promise<RecipeResponseDto[]> {
+    return this.householdRecipesService.findByHousehold(householdId);
+  }
+
+  @Delete(':recipeId')
+  @ApiOperation({ summary: 'Remove a recipe from a household' })
+  @ApiNoContentResponse({ description: 'Recipe removed from household.' })
+  @ApiNotFoundResponse({ description: 'Household or saved recipe not found.' })
+  remove(
+    @Param('householdId') householdId: string,
+    @Param('recipeId') recipeId: string,
+  ): Promise<void> {
+    return this.householdRecipesService.remove(householdId, recipeId);
+  }
+}

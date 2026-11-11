@@ -1,0 +1,70 @@
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import type { RecipeResponseDto } from '@meal-mate/schemas';
+import { Repository } from 'typeorm';
+import { Household } from '../households/entities/household.entity.js';
+import { HouseholdMember } from '../households/entities/household-member.entity.js';
+import { HouseholdRecipe } from '../households/entities/household-recipe.entity.js';
+import { Recipe } from '../recipes/entities/recipe.entity.js';
+import { mapManyRecipesToResponseDto } from '../recipes/lib/recipes.mapper.js';
+
+@Injectable()
+export class HouseholdRecipesService {
+  constructor(
+    @InjectRepository(HouseholdRecipe)
+    private readonly householdRecipeRepository: Repository<HouseholdRecipe>,
+    @InjectRepository(Household)
+    private readonly householdRepository: Repository<Household>,
+    @InjectRepository(Recipe)
+    private readonly recipeRepository: Repository<Recipe>,
+    @InjectRepository(HouseholdMember)
+    private readonly memberRepository: Repository<HouseholdMember>,
+  ) {}
+
+  async add(householdId: string, recipeId: string, addedBy: string): Promise<HouseholdRecipe> {
+    if (!(await this.householdRepository.exists({ where: { id: householdId } }))) {
+      throw new NotFoundException(`Household with ID "${householdId}" not found`);
+    }
+    if (!(await this.recipeRepository.exists({ where: { id: recipeId } }))) {
+      throw new NotFoundException(`Recipe with ID "${recipeId}" not found`);
+    }
+    if (!(await this.memberRepository.exists({ where: { householdId, userId: addedBy } }))) {
+      throw new NotFoundException('User is not a member of this household');
+    }
+    if (await this.householdRecipeRepository.exists({ where: { householdId, recipeId } })) {
+      throw new ConflictException('Recipe is already saved in this household');
+    }
+
+    return this.householdRecipeRepository.save(
+      this.householdRecipeRepository.create({ householdId, recipeId, addedBy }),
+    );
+  }
+
+  async findByHousehold(householdId: string): Promise<RecipeResponseDto[]> {
+    if (!(await this.householdRepository.exists({ where: { id: householdId } }))) {
+      throw new NotFoundException(`Household with ID "${householdId}" not found`);
+    }
+    const savedRecipes = await this.householdRecipeRepository.find({
+      where: { householdId },
+      relations: { 
+        recipe: { 
+          recipeIngredients: { 
+            ingredient: true 
+          } 
+        } 
+      },
+      order: { createdAt: 'DESC' },
+    });
+    return mapManyRecipesToResponseDto(savedRecipes.map(({ recipe }) => recipe));
+  }
+
+  async remove(householdId: string, recipeId: string): Promise<void> {
+    if (!(await this.householdRepository.exists({ where: { id: householdId } }))) {
+      throw new NotFoundException(`Household with ID "${householdId}" not found`);
+    }
+    const result = await this.householdRecipeRepository.delete({ householdId, recipeId });
+    if (result.affected === 0) {
+      throw new NotFoundException('Household recipe not found');
+    }
+  }
+}
