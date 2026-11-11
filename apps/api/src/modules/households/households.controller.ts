@@ -12,11 +12,14 @@ import {
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiBadRequestResponse,
+  ApiConflictResponse
 } from '@nestjs/swagger';
 
 import { HouseholdsService } from './households.service.js';
 import type { HouseholdResponseDto } from '@meal-mate/schemas';
 import type { CreateHouseholdDto } from '@meal-mate/schemas';
+import type { AddHouseholdMemberDto } from '@meal-mate/schemas';
+import type { HouseholdMemberResponseDto } from '@meal-mate/schemas';
 
 @ApiTags('Households')
 @Controller('/households')
@@ -56,5 +59,29 @@ export class HouseholdsController {
         @Body() dto: CreateHouseholdDto,
     ) {
         return await this.householdsService.createHousehold(userId, dto);
+    }
+
+    @Post(':householdId/join')
+    @ApiOperation({
+        summary: 'Join a household',
+        description: 'Adds a user as a regular MEMBER to an existing household.',
+    })
+    @ApiCreatedResponse({
+        description: 'The user has successfully joined the household.',
+    })
+    @ApiNotFoundResponse({
+        description: 'Household or User not found.',
+    })
+    @ApiConflictResponse({
+        description: 'User is already a member of this household.',
+    })
+    @ApiBadRequestResponse({
+        description: 'Invalid request body.',
+    })
+    async addMember(
+    @Param('householdId') householdId: string,
+    @Body() dto: AddHouseholdMemberDto,
+    ): Promise<HouseholdMemberResponseDto> {
+        return await this.householdsService.addMember(householdId, dto);
     }
 }
