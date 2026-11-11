@@ -45,22 +45,22 @@ export class RecipesController {
   }
 
   @Post()
-    @ApiOperation({
-      summary: 'Create a recipe',
-      description:
-        'Creates a new recipe using the required fields',
-    })
-    @ApiCreatedResponse({
-      description: 'The recipe was successfully created.',
-    })
-    @ApiBadRequestResponse({
-      description: 'The request body is invalid.',
-    })
-    async createUser(
-      @Body({ schema: CreateRecipeSchema }) data: CreateRecipeDto,
-    ): Promise<CreateRecipeResponseDto> {
-      return this.recipesService.createRecipe(data);
-    }
+  @ApiOperation({
+    summary: 'Create a recipe',
+    description:
+      'Creates a new recipe using the required fields',
+  })
+  @ApiCreatedResponse({
+    description: 'The recipe was successfully created.',
+  })
+  @ApiBadRequestResponse({
+    description: 'The request body is invalid.',
+  })
+  async createUser(
+    @Body({ schema: CreateRecipeSchema }) data: CreateRecipeDto,
+  ): Promise<CreateRecipeResponseDto> {
+    return this.recipesService.createRecipe(data);
+  }
 
   @Get(':id')
   @ApiOperation({
