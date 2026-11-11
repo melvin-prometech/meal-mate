@@ -5,3 +5,4 @@ export const AddHouseholdMemberSchema = z.object({
 });
 
 export type AddHouseholdMemberDto = z.infer<typeof AddHouseholdMemberSchema>;
+export type RemoveHouseholdMemberDto = z.infer<typeof AddHouseholdMemberSchema>;
