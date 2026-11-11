@@ -1,6 +1,6 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import type { RecipeResponseDto } from '@meal-mate/schemas';
+import { HouseholdRecipeResponseSchema, type HouseholdRecipeResponseDto, type RecipeResponseDto } from '@meal-mate/schemas';
 import { Repository } from 'typeorm';
 import { Household } from '../households/entities/household.entity.js';
 import { HouseholdMember } from '../households/entities/household-member.entity.js';
@@ -21,7 +21,7 @@ export class HouseholdRecipesService {
     private readonly memberRepository: Repository<HouseholdMember>,
   ) {}
 
-  async add(householdId: string, recipeId: string, addedBy: string): Promise<HouseholdRecipe> {
+  async add(householdId: string, recipeId: string, addedBy: string): Promise<HouseholdRecipeResponseDto> {
     if (!(await this.householdRepository.exists({ where: { id: householdId } }))) {
       throw new NotFoundException(`Household with ID "${householdId}" not found`);
     }
@@ -35,9 +35,10 @@ export class HouseholdRecipesService {
       throw new ConflictException('Recipe is already saved in this household');
     }
 
-    return this.householdRecipeRepository.save(
+    const saved = await this.householdRecipeRepository.save(
       this.householdRecipeRepository.create({ householdId, recipeId, addedBy }),
     );
+    return HouseholdRecipeResponseSchema.parse(saved);
   }
 
   async findByHousehold(householdId: string): Promise<RecipeResponseDto[]> {

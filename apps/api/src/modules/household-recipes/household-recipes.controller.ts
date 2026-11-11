@@ -9,7 +9,7 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { CreateHouseholdRecipeSchema, type CreateHouseholdRecipeDto, type RecipeResponseDto } from '@meal-mate/schemas';
+import { CreateHouseholdRecipeSchema, type CreateHouseholdRecipeDto, type HouseholdRecipeResponseDto, type RecipeResponseDto } from '@meal-mate/schemas';
 import { HouseholdRecipesService } from './household-recipes.service.js';
 
 @ApiTags('Household recipes')
@@ -19,14 +19,14 @@ export class HouseholdRecipesController {
 
   @Post()
   @ApiOperation({ summary: 'Save a recipe to a household' })
-  @ApiCreatedResponse({ description: 'Recipe saved to household.' })
+  @ApiCreatedResponse({ description: 'Recipe saved to household.', type: Object })
   @ApiBadRequestResponse({ description: 'Request body is invalid.' })
   @ApiConflictResponse({ description: 'Recipe is already saved in this household.' })
   @ApiNotFoundResponse({ description: 'Household, recipe, or household member not found.' })
   add(
     @Param('householdId') householdId: string,
     @Body({ schema: CreateHouseholdRecipeSchema }) dto: CreateHouseholdRecipeDto,
-  ) {
+  ): Promise<HouseholdRecipeResponseDto> {
     return this.householdRecipesService.add(householdId, dto.recipeId, dto.addedBy);
   }
 
@@ -34,7 +34,9 @@ export class HouseholdRecipesController {
   @ApiOperation({ summary: 'Get recipes saved in a household' })
   @ApiOkResponse({ description: 'Household recipes retrieved.' })
   @ApiNotFoundResponse({ description: 'Household not found.' })
-  findByHousehold(@Param('householdId') householdId: string): Promise<RecipeResponseDto[]> {
+  findByHousehold(
+    @Param('householdId') householdId: string
+  ): Promise<RecipeResponseDto[]> {
     return this.householdRecipesService.findByHousehold(householdId);
   }
 
