@@ -2,7 +2,7 @@ import z from 'zod';
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { HouseholdRole } from '@meal-mate/schemas';
+import { HouseholdRole, RemoveHouseholdMemberDto } from '@meal-mate/schemas';
 import { CreateHouseholdDto } from '@meal-mate/schemas';
 
 import { Household } from './entities/household.entity.js';
@@ -102,5 +102,28 @@ export class HouseholdsService {
     savedMember.user = user as User;
 
     return mapMemberToResponseDto(savedMember);
+  }
+
+  async removeMember(
+    householdId: string,
+    dto: RemoveHouseholdMemberDto,
+  ): Promise<void> {
+    const memberRepo = this.householdRepository.manager.getRepository(HouseholdMember);
+
+    if (!(await this.householdRepository.exists({ where: { id: householdId } }))) {
+      throw new NotFoundException(`Household with ID "${householdId}" not found`);
+    }
+    if (!(await this.usersService.exists(dto.userId))) {
+      throw new NotFoundException('User not found');
+    }
+
+    const member = await memberRepo.findOne({
+      where: { householdId, userId: dto.userId },
+    });
+    if (!member) {
+      throw new NotFoundException('User is not a member of this household');
+    }
+
+    await memberRepo.delete({ householdId, userId: dto.userId });
   }
 }

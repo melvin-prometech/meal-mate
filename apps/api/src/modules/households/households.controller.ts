@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Delete,
   Param,
   Body,
 } from '@nestjs/common';
@@ -12,7 +13,8 @@ import {
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiBadRequestResponse,
-  ApiConflictResponse
+  ApiConflictResponse,
+  ApiNoContentResponse
 } from '@nestjs/swagger';
 
 import { HouseholdsService } from './households.service.js';
@@ -20,6 +22,7 @@ import type { HouseholdResponseDto } from '@meal-mate/schemas';
 import type { CreateHouseholdDto } from '@meal-mate/schemas';
 import type { AddHouseholdMemberDto } from '@meal-mate/schemas';
 import type { HouseholdMemberResponseDto } from '@meal-mate/schemas';
+import type { RemoveHouseholdMemberDto } from '@meal-mate/schemas';
 
 @ApiTags('Households')
 @Controller('/households')
@@ -83,5 +86,24 @@ export class HouseholdsController {
     @Body() dto: AddHouseholdMemberDto,
     ): Promise<HouseholdMemberResponseDto> {
         return await this.householdsService.addMember(householdId, dto);
+    }
+
+
+    @Delete(':householdId/members')
+    @ApiOperation({
+    summary: 'Remove a member from a household',
+    description: 'Removes a user from the specified household.',
+    })
+    @ApiNoContentResponse({
+    description: 'Member successfully removed.',
+    })
+    @ApiNotFoundResponse({
+    description: 'Household, user, or membership not found.',
+    })
+    async removeMember(
+    @Param('householdId') householdId: string, 
+    @Body() dto: RemoveHouseholdMemberDto, 
+    ): Promise<void> {
+        await this.householdsService.removeMember(householdId, dto);
     }
 }
