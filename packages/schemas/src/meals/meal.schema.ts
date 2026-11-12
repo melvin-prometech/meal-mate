@@ -31,7 +31,15 @@ export const FindMealsSchema = z
     path: ['from'],
   });
 
+export const ShoppingListItemSchema = z.object({
+  ingredientId: z.uuid(),
+  name: z.string(),
+  quantity: z.number().nullable(),
+  unit: z.string().nullable(),
+});
+
 export type CreateMealDto = z.infer<typeof CreateMealSchema>;
 export type UpdateMealDto = z.infer<typeof UpdateMealSchema>;
 export type MealResponseDto = z.infer<typeof MealResponseSchema>;
 export type FindMealsDto = z.infer<typeof FindMealsSchema>;
+export type ShoppingListItemDto = z.infer<typeof ShoppingListItemSchema>;

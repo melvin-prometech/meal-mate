@@ -5,10 +5,11 @@ import { HouseholdRecipe } from '../households/entities/household-recipe.entity.
 import { Meal } from './entities/meal.entity.js';
 import { MealsController } from './meals.controller.js';
 import { MealsService } from './meals.service.js';
+import { ShoppingListController } from './shopping-list.controller.js';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Meal, Household, HouseholdRecipe])],
-  controllers: [MealsController],
+  controllers: [MealsController, ShoppingListController],
   providers: [MealsService],
 })
 export class MealsModule {}
