@@ -9,7 +9,12 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { CreateHouseholdRecipeSchema, type CreateHouseholdRecipeDto, type HouseholdRecipeResponseDto, type RecipeResponseDto } from '@meal-mate/schemas';
+import {
+  CreateHouseholdRecipeSchema,
+  type CreateHouseholdRecipeDto,
+  type HouseholdRecipeResponseDto,
+  type HouseholdRecipeWithRecipeResponseDto,
+} from '@meal-mate/schemas';
 import { HouseholdRecipesService } from './household-recipes.service.js';
 
 @ApiTags('Household recipes')
@@ -36,7 +41,7 @@ export class HouseholdRecipesController {
   @ApiNotFoundResponse({ description: 'Household not found.' })
   findByHousehold(
     @Param('householdId') householdId: string
-  ): Promise<RecipeResponseDto[]> {
+  ): Promise<HouseholdRecipeWithRecipeResponseDto[]> {
     return this.householdRecipesService.findByHousehold(householdId);
   }
 
