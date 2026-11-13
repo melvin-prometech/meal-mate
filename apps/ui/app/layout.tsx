@@ -1,16 +1,13 @@
 import type { Metadata } from "next";
-import "./globals.css";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
+import "./globals.css";
 
-const geist = Geist({
-  subsets: ["latin"],
-  variable: "--font-sans",
-});
+const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: "UI",
-  description: "Meal Mate UI",
+  title: "MealMate",
+  description: "Recipes and meal planning for your household.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
