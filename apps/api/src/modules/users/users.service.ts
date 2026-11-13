@@ -1,5 +1,6 @@
 
 import { Injectable, NotFoundException } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
 import z from 'zod';
 import type { CreateUserDto, UserResponseDto, UpdateUserDto, FindUserDto } from '@meal-mate/schemas';
@@ -33,7 +34,11 @@ export class UsersService {
   }
 
   async create(data: CreateUserDto): Promise<UserResponseDto> {
-    const user = this.usersRepository.create(data);
+    const passwordHash = await bcrypt.hash(data.password, 12);
+    const user = this.usersRepository.create({
+      ...data,
+      password: passwordHash,
+    });
     const savedUser = await this.usersRepository.save(user);
 
     return UserResponseSchema.parse(savedUser);
