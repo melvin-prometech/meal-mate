@@ -2,15 +2,16 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { UserResponseSchema, type SignInDto, type UserResponseDto } from '@meal-mate/schemas';
+import {
+  SignInResponseSchema,
+  UserResponseSchema,
+  type SignInDto,
+  type SignInResponseDto,
+  type UserResponseDto,
+} from '@meal-mate/schemas';
 import { Repository } from 'typeorm';
 import { createAccessToken, getUserIdFromAuthorizationHeader } from './lib/access-token.js';
 import { User } from '../users/entities/user.entity.js';
-
-export type SignInResponse = {
-  accessToken: string;
-  user: UserResponseDto;
-};
 
 @Injectable()
 export class AuthService {
@@ -19,7 +20,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async signIn(data: SignInDto): Promise<SignInResponse> {
+  async signIn(data: SignInDto): Promise<SignInResponseDto> {
     const user = await this.usersRepository
       .createQueryBuilder('user')
       .addSelect('user.password')
@@ -30,10 +31,10 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    return {
+    return SignInResponseSchema.parse({
       accessToken: await createAccessToken(this.jwtService, user.id),
       user: UserResponseSchema.parse(user),
-    };
+    });
   }
 
   async me(authorizationHeader?: string): Promise<UserResponseDto> {

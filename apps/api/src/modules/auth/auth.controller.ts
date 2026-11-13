@@ -1,8 +1,12 @@
 import { Body, Controller, Get, Headers, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
-import { SignInSchema, type SignInDto } from '@meal-mate/schemas';
-import { AuthService, type SignInResponse } from './auth.service.js';
-import type { UserResponseDto } from '@meal-mate/schemas';
+import {
+  SignInSchema,
+  type SignInDto,
+  type SignInResponseDto,
+  type UserResponseDto,
+} from '@meal-mate/schemas';
+import { AuthService } from './auth.service.js';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -16,7 +20,7 @@ export class AuthController {
   @ApiUnauthorizedResponse({ description: 'Email or password is incorrect.' })
   signIn(
     @Body({ schema: SignInSchema }) data: SignInDto,
-  ): Promise<SignInResponse> {
+  ): Promise<SignInResponseDto> {
     return this.authService.signIn(data);
   }
 
