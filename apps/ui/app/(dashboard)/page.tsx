@@ -1,6 +1,6 @@
 import { BookOpen } from "lucide-react";
 import { getRecipes } from "@/features/recipes/data/get-recipes";
-import { RecipeList } from "@/features/recipes/recipe-list";
+import { RecipeList } from "@/features/recipes/components/recipe-list";
 
 export default async function RecipesPage() {
   const recipes = await getRecipes();

@@ -1,5 +1,5 @@
 import type { RecipeResponseDto } from "@meal-mate/schemas";
-import { RecipeCard } from "@/features/recipes/recipe-card";
+import { RecipeCard } from "@/features/recipes/components/recipe-card";
 
 type RecipeListProps = {
   recipes: RecipeResponseDto[];
