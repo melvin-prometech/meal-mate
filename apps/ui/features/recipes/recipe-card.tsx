@@ -70,16 +70,12 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
       ) : null}
 
       </CardContent>
-      {recipe.createdBy ? (
-        <>
-          <div className="px-8">
-            <Separator />
-          </div>
-          <CardFooter className="mt-auto min-h-16 justify-start border-t-0 px-8 py-3 text-left text-sm text-muted-foreground">
-          Created by: {recipe.createdBy}
-          </CardFooter>
-        </>
-      ) : null}
+      <div className="px-8">
+        <Separator />
+      </div>
+      <CardFooter className="mt-auto min-h-16 justify-start border-t-0 px-8 py-3 text-left text-sm text-muted-foreground">
+        Created by: {recipe.createdBy ?? "-"}
+      </CardFooter>
     </Card>
   );
 }

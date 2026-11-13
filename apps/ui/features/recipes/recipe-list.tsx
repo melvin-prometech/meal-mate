@@ -7,9 +7,9 @@ type RecipeListProps = {
 
 export function RecipeList({ recipes }: RecipeListProps) {
   return (
-    <div className="flex flex-wrap gap-6">
+    <div className="flex flex-wrap items-start gap-6">
       {recipes.map((recipe) => (
-        <div key={recipe.id} className="min-w-0 flex-[1_1_18rem]">
+        <div key={recipe.id} className="w-full max-w-sm">
           <RecipeCard recipe={recipe} />
         </div>
       ))}
