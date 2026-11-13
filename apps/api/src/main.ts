@@ -1,8 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import {
-  SwaggerModule,
-  DocumentBuilder,
-} from '@nestjs/swagger';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { StandardSchemaValidationPipe } from '@nestjs/common';
 
 import { AppModule } from './app.module.js';
@@ -16,10 +13,13 @@ async function bootstrap() {
     .setTitle('My API')
     .setDescription('API documentation')
     .setVersion('1.0')
+    .addBearerAuth(
+      { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+      'access-token',
+    )
     .build();
 
-  const documentFactory = () =>
-    SwaggerModule.createDocument(app, config);
+  const documentFactory = () => SwaggerModule.createDocument(app, config);
 
   SwaggerModule.setup('api', app, documentFactory);
 
