@@ -9,8 +9,8 @@ const geist = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "UI",
-  description: "Meal Mate UI",
+  title: "MealMate",
+  description: "Recipes and meal planning for your household.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
