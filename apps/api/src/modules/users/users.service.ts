@@ -54,7 +54,11 @@ export class UsersService {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
 
-    Object.assign(user, updateUserDto);
+    const updates = { ...updateUserDto };
+    if (updates.password) {
+      updates.password = await bcrypt.hash(updates.password, 12);
+    }
+    Object.assign(user, updates);
 
     const updatedUser = await this.usersRepository.save(user);
 
