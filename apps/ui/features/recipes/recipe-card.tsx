@@ -1,5 +1,15 @@
 import { Clock3, Heart, UsersRound } from "lucide-react";
 import type { RecipeResponseDto } from "@meal-mate/schemas";
+import { Separator } from "@/components/ui/separator";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 type RecipeCardProps = {
   recipe: RecipeResponseDto;
@@ -17,20 +27,21 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
     : [];
 
   return (
-    <article className="flex min-h-72 flex-col rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8">
-      <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0">
-          <h2 className="truncate text-xl font-semibold tracking-tight">{recipe.title}</h2>
-          {recipe.description?.trim() ? (
-            <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
-              {recipe.description}
-            </p>
-          ) : null}
-        </div>
-        <Heart aria-hidden="true" className="mt-0.5 size-6 shrink-0 fill-current text-foreground" />
-      </div>
+    <Card className="min-h-72 gap-0 py-0">
+      <CardHeader className="grid-cols-[1fr_auto] items-start px-6 pt-6 sm:px-8 sm:pt-8">
+        <CardTitle className="truncate text-xl">{recipe.title}</CardTitle>
+        <CardAction>
+          <Heart aria-hidden="true" className="size-6 fill-current text-foreground" />
+        </CardAction>
+        {recipe.description?.trim() ? (
+          <CardDescription className="col-span-2 line-clamp-2 mt-1">
+            {recipe.description}
+          </CardDescription>
+        ) : null}
+      </CardHeader>
 
-      <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 text-muted-foreground">
+      <CardContent className="flex flex-1 flex-col px-6 pb-6 pt-5 sm:px-8 sm:pb-8">
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-muted-foreground">
         {prepTime !== null ? (
           <span className="inline-flex items-center gap-2">
             <Clock3 aria-hidden="true" className="size-5" />
@@ -58,11 +69,17 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
         </ul>
       ) : null}
 
+      </CardContent>
       {recipe.createdBy ? (
-        <footer className="mt-auto border-t border-border pt-4 text-sm text-muted-foreground">
+        <>
+          <div className="px-8">
+            <Separator />
+          </div>
+          <CardFooter className="mt-auto min-h-16 justify-start border-t-0 px-8 py-3 text-left text-sm text-muted-foreground">
           Created by: {recipe.createdBy}
-        </footer>
+          </CardFooter>
+        </>
       ) : null}
-    </article>
+    </Card>
   );
 }
