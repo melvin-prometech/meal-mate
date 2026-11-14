@@ -4,7 +4,7 @@ import { RecipeList } from "@/features/recipes/components/recipe-list";
 
 export function FavoritesContent({ recipes }: { recipes: RecipeResponseDto[] }) {
   return recipes.length > 0 ? (
-    <RecipeList recipes={recipes} allAreFavorites />
+    <RecipeList recipes={recipes} />
   ) : (
     <section className="flex min-h-72 flex-1 flex-col items-center justify-center rounded-xl border border-dashed border-border px-6 text-center">
       <span className="mb-4 flex size-11 items-center justify-center rounded-full bg-muted text-muted-foreground">

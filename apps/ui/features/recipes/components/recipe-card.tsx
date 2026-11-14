@@ -1,14 +1,5 @@
-"use client";
-
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Clock3, Heart, UsersRound } from "lucide-react";
 import type { RecipeResponseDto } from "@meal-mate/schemas";
-import {
-  addFavoriteRecipeAction,
-  removeFavoriteRecipeAction,
-} from "@/features/favorites/actions";
-import { useUser } from "@/features/users/components/user-provider";
 import { Separator } from "@/components/ui/separator";
 import {
   Card,
@@ -22,42 +13,9 @@ import {
 
 type RecipeCardProps = {
   recipe: RecipeResponseDto;
-  isFavorite?: boolean;
-  removeFromListWhenUnfavorited?: boolean;
 };
 
-export function RecipeCard({
-  recipe,
-  isFavorite = false,
-  removeFromListWhenUnfavorited = false,
-}: RecipeCardProps) {
-  const router = useRouter();
-  const { id: userId } = useUser();
-  const [favorite, setFavorite] = useState(isFavorite);
-  const [isUpdatingFavorite, setIsUpdatingFavorite] = useState(false);
-  const [favoriteError, setFavoriteError] = useState(false);
-
-  async function toggleFavorite() {
-    if (isUpdatingFavorite) return;
-
-    const wasFavorite = favorite;
-    setFavorite(!wasFavorite);
-    setIsUpdatingFavorite(true);
-    setFavoriteError(false);
-    try {
-      if (wasFavorite) {
-        await removeFavoriteRecipeAction(userId, recipe.id);
-        if (removeFromListWhenUnfavorited) router.refresh();
-      } else {
-        await addFavoriteRecipeAction(userId, recipe.id);
-      }
-    } catch {
-      setFavorite(wasFavorite);
-      setFavoriteError(true);
-    } finally {
-      setIsUpdatingFavorite(false);
-    }
-  }
+export function RecipeCard({ recipe }: RecipeCardProps) {
   const prepTime = Number.isFinite(recipe.prepTime) && recipe.prepTime >= 0
     ? recipe.prepTime
     : null;
@@ -73,25 +31,7 @@ export function RecipeCard({
       <CardHeader className="grid-cols-[1fr_auto] items-start px-6 pt-6 sm:px-8 sm:pt-8">
         <CardTitle className="truncate text-xl">{recipe.title}</CardTitle>
         <CardAction>
-          <button
-            type="button"
-            onClick={toggleFavorite}
-            disabled={isUpdatingFavorite}
-            aria-label={favorite ? "Remove from favorites" : "Add to favorites"}
-            aria-pressed={favorite}
-            title={favorite ? "Remove from favorites" : "Add to favorites"}
-            className="group rounded-sm text-foreground transition-transform duration-150 hover:scale-110 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-wait motion-reduce:transform-none"
-          >
-            <Heart
-              aria-hidden="true"
-              className={`size-6 transition-colors duration-150 ${favorite ? "fill-current text-rose-600" : "group-hover:fill-current group-hover:text-rose-500 group-focus-visible:fill-current group-focus-visible:text-rose-500"}`}
-            />
-          </button>
-          {favoriteError ? (
-            <span role="alert" className="mt-1 block text-xs text-destructive">
-              Couldn’t save. Try again.
-            </span>
-          ) : null}
+          <Heart aria-hidden="true" className="size-6 text-foreground" />
         </CardAction>
         {recipe.description?.trim() ? (
           <CardDescription className="col-span-2 line-clamp-2 mt-1">
