@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BookOpen, Heart, House, Utensils } from "lucide-react";
+import { SidebarUser } from "@/features/users/components/sidebar-user";
 import {
   Sidebar,
   SidebarContent,
@@ -83,9 +84,7 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarSeparator className="mx-0 w-full shrink-0" />
-      <SidebarFooter className="min-h-20 p-4">
-        <div aria-label="Signed-in user placeholder" className="min-h-12" />
-      </SidebarFooter>
+      <SidebarUser />
     </Sidebar>
   );
 }

@@ -14,6 +14,7 @@ export const UserResponseSchema = z.object({
   firstName: z.string(),
   lastName: z.string(),
   email: z.email(),
+  role: z.enum(UserRole)
 });
 
 export type CreateUserDto = z.infer<typeof CreateUserSchema>;
