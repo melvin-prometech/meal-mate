@@ -1,11 +1,13 @@
+"use server";
+
 import type { RemoveHouseholdMemberDto } from "@meal-mate/schemas";
-import { apiClient } from "@/lib/api-client";
+import { authenticatedClient } from "@/lib/authenticated-client";
 
 export async function removeHouseholdMember(
   householdId: string,
   data: RemoveHouseholdMemberDto,
 ): Promise<void> {
-  const response = await apiClient.fetch(`/households/${encodeURIComponent(householdId)}/members`, {
+  const response = await authenticatedClient.fetch(`/households/${encodeURIComponent(householdId)}/members`, {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),

@@ -1,7 +1,9 @@
-import { apiClient } from "@/lib/api-client";
+"use server";
+
+import { authenticatedClient } from "@/lib/authenticated-client";
 
 export async function removeHouseholdRecipe(householdId: string, recipeId: string): Promise<void> {
-  const response = await apiClient.fetch(
+  const response = await authenticatedClient.fetch(
     `/household-recipes/${encodeURIComponent(householdId)}/${encodeURIComponent(recipeId)}`,
     { method: "DELETE" },
   );

@@ -1,8 +1,10 @@
+"use server";
+
 import type { CreateUserDto, UserResponseDto } from "@meal-mate/schemas";
-import { apiClient } from "@/lib/api-client";
+import { authenticatedClient } from "@/lib/authenticated-client";
 
 export async function createUser(data: CreateUserDto): Promise<UserResponseDto> {
-  const response = await apiClient.fetch("/users", {
+  const response = await authenticatedClient.fetch("/users", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),

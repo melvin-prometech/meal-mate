@@ -1,8 +1,10 @@
+"use server";
+
 import type { UserResponseDto } from "@meal-mate/schemas";
-import { apiClient } from "@/lib/api-client";
+import { authenticatedClient } from "@/lib/authenticated-client";
 
 export async function getUsers(): Promise<UserResponseDto[]> {
-  const response = await apiClient.fetch("/users");
+  const response = await authenticatedClient.fetch("/users");
   if (!response.ok) throw new Error(`Failed to fetch users (${response.status}).`);
   return (await response.json()) as UserResponseDto[];
 }

@@ -1,8 +1,10 @@
+"use server";
+
 import type { RecipeResponseDto } from "@meal-mate/schemas";
-import { apiClient } from "@/lib/api-client";
+import { authenticatedClient } from "@/lib/authenticated-client";
 
 export async function getRecipes(): Promise<RecipeResponseDto[]> {
-  const response = await apiClient.fetch("/recipes");
+  const response = await authenticatedClient.fetch("/recipes");
 
   if (!response.ok) {
     throw new Error(`Failed to fetch recipes (${response.status}).`);

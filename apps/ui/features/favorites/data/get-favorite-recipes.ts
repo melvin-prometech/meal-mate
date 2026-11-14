@@ -1,3 +1,5 @@
+"use server";
+
 import type { RecipeResponseDto } from "@meal-mate/schemas";
 import { authenticatedClient } from "@/lib/authenticated-client";
 

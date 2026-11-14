@@ -1,6 +1,3 @@
-import { Suspense } from "react";
-import { requireAuth } from "@/features/auth/auth";
-import { getFavoriteRecipes } from "@/features/favorites/data/get-favorite-recipes";
 import { FavoritesContent } from "@/features/favorites/components/favorites-content";
 
 export default function FavoritesPage() {
@@ -9,16 +6,7 @@ export default function FavoritesPage() {
       <header className="mb-8 border-b border-border pb-6">
         <h1 className="text-2xl font-semibold tracking-tight">Favorites</h1>
       </header>
-      <Suspense fallback={<div className="min-h-72 flex-1" />}>
-        <FavoritesData />
-      </Suspense>
+      <FavoritesContent />
     </main>
   );
-}
-
-async function FavoritesData() {
-  const { user } = await requireAuth();
-  const recipes = await getFavoriteRecipes(user.id);
-
-  return <FavoritesContent recipes={recipes} />;
 }
