@@ -20,18 +20,19 @@ export function RecipeList({ recipes, favoritesOnly = false, emptyState }: Recip
   const pathname = usePathname();
   const [favoriteIds, setFavoriteIds] = useState<Set<string>>(() => new Set());
   const [favoritesLoaded, setFavoritesLoaded] = useState(false);
-  const [visibleRecipes, setVisibleRecipes] = useState(recipes);
+  const [favoriteRecipes, setFavoriteRecipes] = useState<RecipeResponseDto[]>([]);
+  const [favoritesVersion, setFavoritesVersion] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
     getFavoriteRecipes(userId).then((favorites) => {
       if (cancelled) return;
       setFavoriteIds(new Set(favorites.map((recipe) => recipe.id)));
-      if (favoritesOnly) setVisibleRecipes(favorites);
+      setFavoriteRecipes(favorites);
       setFavoritesLoaded(true);
     });
     return () => { cancelled = true; };
-  }, [pathname, userId, favoritesOnly]);
+  }, [pathname, userId, favoritesOnly, favoritesVersion]);
 
   if (!favoritesLoaded) return <div className="min-h-72 flex-1" />;
 
@@ -46,10 +47,9 @@ export function RecipeList({ recipes, favoritesOnly = false, emptyState }: Recip
       return next;
     });
 
-    if (favoritesOnly && wasFavorite) {
-      setVisibleRecipes((current) => current.filter((recipe) => recipe.id !== recipeId));
-    }
   }
+
+  const visibleRecipes = favoritesOnly ? favoriteRecipes : recipes;
 
   if (favoritesOnly && visibleRecipes.length === 0) return <>{emptyState}</>;
 
@@ -61,6 +61,10 @@ export function RecipeList({ recipes, favoritesOnly = false, emptyState }: Recip
             recipe={recipe}
             isFavorite={favoriteIds.has(recipe.id)}
             onToggleFavorite={() => void handleToggleFavorite(recipe.id)}
+            onDeleted={() => {
+              setFavoritesLoaded(false);
+              setFavoritesVersion((version) => version + 1);
+            }}
           />
         </div>
       ))}

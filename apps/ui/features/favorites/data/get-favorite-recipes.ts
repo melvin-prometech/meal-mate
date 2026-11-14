@@ -6,6 +6,7 @@ import { authenticatedClient } from "@/lib/authenticated-client";
 export async function getFavoriteRecipes(userId: string): Promise<RecipeResponseDto[]> {
   const response = await authenticatedClient.fetch(
     `/users/${encodeURIComponent(userId)}/favorite-recipes`,
+    { cache: "no-store" },
   );
 
   if (!response.ok) {
