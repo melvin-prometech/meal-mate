@@ -1,0 +1,51 @@
+import "server-only";
+
+import type { UserResponseDto } from "@meal-mate/schemas";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { apiClient } from "@/lib/api-client";
+
+const ACCESS_TOKEN_COOKIE = "access_token";
+
+export async function saveAccessToken(accessToken: string) {
+  const cookieStore = await cookies();
+
+  cookieStore.set(ACCESS_TOKEN_COOKIE, accessToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60,
+  });
+}
+
+export async function clearAccessToken() {
+  const cookieStore = await cookies();
+  cookieStore.delete(ACCESS_TOKEN_COOKIE);
+}
+
+export async function requireAuth(): Promise<{
+  accessToken: string;
+  user: UserResponseDto;
+}> {
+  const accessToken = (await cookies()).get(ACCESS_TOKEN_COOKIE)?.value;
+
+  if (!accessToken) redirect("/login");
+
+  const response = await apiClient.fetch("/auth/me", {
+    headers: { Authorization: `Bearer ${accessToken}` },
+    cache: "no-store",
+  });
+
+  if (response.status === 401) {
+    await clearAccessToken();
+    redirect("/login");
+  }
+
+  if (!response.ok) throw new Error(`Failed to check sign-in (${response.status}).`);
+
+  return {
+    accessToken,
+    user: (await response.json()) as UserResponseDto,
+  };
+}
