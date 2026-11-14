@@ -2,9 +2,15 @@ import { BookOpen } from "lucide-react";
 import type { RecipeResponseDto } from "@meal-mate/schemas";
 import { RecipeList } from "@/features/recipes/components/recipe-list";
 
-export function RecipesContent({ recipes }: { recipes: RecipeResponseDto[] }) {
+export function RecipesContent({
+  recipes,
+  favoriteRecipeIds,
+}: {
+  recipes: RecipeResponseDto[];
+  favoriteRecipeIds: string[];
+}) {
   return recipes.length > 0 ? (
-    <RecipeList recipes={recipes} />
+    <RecipeList recipes={recipes} favoriteRecipeIds={new Set(favoriteRecipeIds)} />
   ) : (
     <section className="flex min-h-72 flex-1 flex-col items-center justify-center rounded-xl border border-dashed border-border px-6 text-center">
       <span className="mb-4 flex size-11 items-center justify-center rounded-full bg-muted text-muted-foreground">

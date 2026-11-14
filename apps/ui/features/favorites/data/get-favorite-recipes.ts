@@ -1,8 +1,8 @@
 import type { RecipeResponseDto } from "@meal-mate/schemas";
-import { apiClient } from "@/lib/api-client";
+import { authenticatedClient } from "@/lib/authenticated-client";
 
 export async function getFavoriteRecipes(userId: string): Promise<RecipeResponseDto[]> {
-  const response = await apiClient.fetch(
+  const response = await authenticatedClient.fetch(
     `/users/${encodeURIComponent(userId)}/favorite-recipes`,
   );
 

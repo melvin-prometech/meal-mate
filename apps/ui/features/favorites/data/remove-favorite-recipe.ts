@@ -1,7 +1,10 @@
-import { apiClient } from "@/lib/api-client";
+import { authenticatedClient } from "@/lib/authenticated-client";
 
-export async function removeFavoriteRecipe(userId: string, recipeId: string): Promise<void> {
-  const response = await apiClient.fetch(
+export async function removeFavoriteRecipe(
+  userId: string,
+  recipeId: string,
+): Promise<void> {
+  const response = await authenticatedClient.fetch(
     `/users/${encodeURIComponent(userId)}/favorite-recipes/${encodeURIComponent(recipeId)}`,
     { method: "DELETE" },
   );
