@@ -24,13 +24,13 @@ export async function clearAccessToken() {
   cookieStore.delete(ACCESS_TOKEN_COOKIE);
 }
 
-export async function requireAuth(): Promise<{
+export async function getAuth(): Promise<{
   accessToken: string;
   user: UserResponseDto;
-}> {
+} | null> {
   const accessToken = (await cookies()).get(ACCESS_TOKEN_COOKIE)?.value;
 
-  if (!accessToken) redirect("/login");
+  if (!accessToken) return null;
 
   const response = await apiClient.fetch("/auth/me", {
     headers: { Authorization: `Bearer ${accessToken}` },
@@ -39,7 +39,7 @@ export async function requireAuth(): Promise<{
 
   if (response.status === 401) {
     await clearAccessToken();
-    redirect("/login");
+    return null;
   }
 
   if (!response.ok) throw new Error(`Failed to check sign-in (${response.status}).`);
@@ -48,4 +48,14 @@ export async function requireAuth(): Promise<{
     accessToken,
     user: (await response.json()) as UserResponseDto,
   };
+}
+
+export async function requireAuth() {
+  const auth = await getAuth();
+  if (!auth) redirect("/login");
+  return auth;
+}
+
+export async function redirectIfAuthenticated() {
+  if (await getAuth()) redirect("/");
 }

@@ -1,17 +1,26 @@
 import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 import { AppSidebar } from "@/features/layout/components/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { requireAuth } from "@/features/auth/auth";
+import { AuthGate } from "@/features/auth/components/auth-gate";
 
-export default async function DashboardLayout({ children }: { children: ReactNode }) {
-  await requireAuth();
-
+export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset className="min-w-0 bg-background">
-        {children}
-      </SidebarInset>
-    </SidebarProvider>
+    <Suspense
+      fallback={
+        <div className="flex min-h-svh items-center justify-center text-sm text-muted-foreground">
+          Checking sign in…
+        </div>
+      }
+    >
+      <AuthGate>
+        <SidebarProvider>
+          <AppSidebar />
+          <SidebarInset className="min-w-0 bg-background">
+            {children}
+          </SidebarInset>
+        </SidebarProvider>
+      </AuthGate>
+    </Suspense>
   );
 }
