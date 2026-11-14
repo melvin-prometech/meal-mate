@@ -1,5 +1,6 @@
 
 import { Injectable, NotFoundException } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
 import z from 'zod';
 import type { CreateUserDto, UserResponseDto, UpdateUserDto, FindUserDto } from '@meal-mate/schemas';
@@ -33,7 +34,11 @@ export class UsersService {
   }
 
   async create(data: CreateUserDto): Promise<UserResponseDto> {
-    const user = this.usersRepository.create(data);
+    const passwordHash = await bcrypt.hash(data.password, 12);
+    const user = this.usersRepository.create({
+      ...data,
+      password: passwordHash,
+    });
     const savedUser = await this.usersRepository.save(user);
 
     return UserResponseSchema.parse(savedUser);
@@ -49,7 +54,11 @@ export class UsersService {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
 
-    Object.assign(user, updateUserDto);
+    const updates = { ...updateUserDto };
+    if (updates.password) {
+      updates.password = await bcrypt.hash(updates.password, 12);
+    }
+    Object.assign(user, updates);
 
     const updatedUser = await this.usersRepository.save(user);
 

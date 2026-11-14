@@ -7,6 +7,7 @@ import { RecipesModule } from './modules/recipes/recipes.module.js';
 import { HouseholdsModule } from './modules/households/households.module.js';
 import { HouseholdRecipesModule } from './modules/household-recipes/household-recipes.module.js';
 import { MealsModule } from './modules/meals/meals.module.js';
+import { AuthModule } from './modules/auth/auth.module.js';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { MealsModule } from './modules/meals/meals.module.js';
     HouseholdsModule,
     HouseholdRecipesModule,
     MealsModule,
+    AuthModule,
   ],
 })
 export class AppModule {}

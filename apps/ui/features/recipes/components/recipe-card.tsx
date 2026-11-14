@@ -31,7 +31,7 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
       <CardHeader className="grid-cols-[1fr_auto] items-start px-6 pt-6 sm:px-8 sm:pt-8">
         <CardTitle className="truncate text-xl">{recipe.title}</CardTitle>
         <CardAction>
-          <Heart aria-hidden="true" className="size-6 fill-current text-foreground" />
+          <Heart aria-hidden="true" className="size-6 text-foreground" />
         </CardAction>
         {recipe.description?.trim() ? (
           <CardDescription className="col-span-2 line-clamp-2 mt-1">

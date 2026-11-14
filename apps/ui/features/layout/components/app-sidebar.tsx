@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpen, Heart, House } from "lucide-react";
+import { BookOpen, Heart, House, Utensils } from "lucide-react";
+import { SidebarUser } from "@/features/users/components/sidebar-user";
 import {
   Sidebar,
   SidebarContent,
@@ -10,6 +11,7 @@ import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -27,6 +29,21 @@ export function AppSidebar() {
 
   return (
     <Sidebar className="border-r border-sidebar-border bg-sidebar">
+      <SidebarHeader className="h-20 shrink-0 justify-center border-b border-sidebar-border px-6 py-0 group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:px-0">
+        <Link
+          href="/"
+          aria-label="MealMate home"
+          className="flex min-w-0 items-center gap-3 text-sidebar-foreground"
+        >
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-neutral-900 text-white">
+            <Utensils className="size-6" strokeWidth={1.8} />
+          </span>
+          <span className="truncate text-xl leading-none font-medium tracking-tight group-data-[collapsible=icon]:hidden">
+            MealMate
+          </span>
+        </Link>
+      </SidebarHeader>
+
       <SidebarContent className="gap-0 px-3 py-5">
         <SidebarGroup className="p-0">
           <SidebarGroupLabel className="mb-2 px-3 text-xs font-medium text-muted-foreground">
@@ -67,9 +84,7 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarSeparator className="mx-0 w-full shrink-0" />
-      <SidebarFooter className="min-h-20 p-4">
-        <div aria-label="Signed-in user placeholder" className="min-h-12" />
-      </SidebarFooter>
+      <SidebarUser />
     </Sidebar>
   );
 }

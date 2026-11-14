@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs";
 import type { RecipeResponseDto } from "@meal-mate/schemas";
-import { RecipeCard } from "../../features/recipes/recipe-card";
+import { RecipeCard } from "../../features/recipes/components/recipe-card";
 
 const recipe: RecipeResponseDto = {
   id: "8f0f3c3a-0ea2-4a1d-9f54-3518164e12b6",
