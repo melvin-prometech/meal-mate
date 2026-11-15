@@ -1,7 +1,24 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { getHouseholdById } from "@/features/households/data/get-household-by-id";
 
-export default async function HouseholdPage({
+export default function HouseholdPage({
+  params,
+}: PageProps<"/households/[householdId]">) {
+  return (
+    <Suspense
+      fallback={
+        <main className="mx-auto flex min-h-svh w-full max-w-8xl flex-col px-6 py-8 text-sm text-muted-foreground sm:px-10">
+          Loading household…
+        </main>
+      }
+    >
+      <HouseholdContent params={params} />
+    </Suspense>
+  );
+}
+
+async function HouseholdContent({
   params,
 }: PageProps<"/households/[householdId]">) {
   const { householdId } = await params;
