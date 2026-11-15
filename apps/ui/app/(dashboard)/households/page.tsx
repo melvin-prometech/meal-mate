@@ -1,6 +1,10 @@
 import { CreateHouseholdDialog } from "@/features/households/components/create-household-dialog";
+import { HouseholdList } from "@/features/households/components/household-list";
+import { getHouseholds } from "@/features/households/data/get-households";
 
-export default function HouseholdsPage() {
+export default async function HouseholdsPage() {
+  const households = await getHouseholds();
+
   return (
     <main className="mx-auto flex min-h-svh w-full max-w-8xl flex-col px-6 py-8 sm:px-10">
       <header className="flex items-end justify-between gap-4 border-b border-border pb-6">
@@ -10,6 +14,7 @@ export default function HouseholdsPage() {
         </div>
         <CreateHouseholdDialog />
       </header>
+      <HouseholdList households={households} />
     </main>
   );
 }

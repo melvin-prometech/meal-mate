@@ -41,7 +41,7 @@ const household: HouseholdResponseDto = {
 const meta = {
   title: "Households/HouseholdCard",
   component: HouseholdCard,
-  args: { household, onOpen: () => undefined },
+  args: { household, onJoin: () => undefined },
   decorators: [
     (Story) => (
       <UserProvider
