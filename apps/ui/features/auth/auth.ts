@@ -3,7 +3,7 @@ import "server-only";
 import type { UserResponseDto } from "@meal-mate/schemas";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { apiClient } from "@/lib/api-client";
+import { authenticatedClient } from "@/lib/authenticated-client";
 
 const ACCESS_TOKEN_COOKIE = "access_token";
 
@@ -32,8 +32,7 @@ export async function getAuth(): Promise<{
 
   if (!accessToken) return null;
 
-  const response = await apiClient.fetch("/auth/me", {
-    headers: { Authorization: `Bearer ${accessToken}` },
+  const response = await authenticatedClient.fetch("/auth/me", {
     cache: "no-store",
   });
 
