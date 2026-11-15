@@ -16,14 +16,22 @@ export function HouseholdList({ households }: { households: HouseholdResponseDto
     router.push(`/households/${encodeURIComponent(householdId)}`);
   }
 
+  function handleOpen(householdId: string) {
+    router.push(`/households/${encodeURIComponent(householdId)}`);
+  }
+
   return (
     <section className="py-6">
-      <h2 className="mb-4 text-lg font-semibold">Join a household</h2>
+      <h2 className="mb-4 text-lg font-semibold">Households</h2>
       {households.length > 0 ? (
         <div className="flex flex-wrap items-start gap-6">
           {households.map((household) => (
             <div key={household.id} className="w-full max-w-sm">
-              <HouseholdCard household={household} onJoin={() => void handleJoin(household.id)} />
+              {household.members.some((member) => member.userId === userId) ? (
+                <HouseholdCard household={household} userId={userId} onOpen={() => handleOpen(household.id)} />
+              ) : (
+                <HouseholdCard household={household} userId={userId} onJoin={() => void handleJoin(household.id)} />
+              )}
             </div>
           ))}
         </div>

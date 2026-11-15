@@ -1,6 +1,6 @@
 "use client";
 
-import { UserPlus } from "lucide-react";
+import { ArrowUpRight, UserPlus } from "lucide-react";
 import type { HouseholdResponseDto } from "@meal-mate/schemas";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,12 +10,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-type HouseholdCardProps = {
-  household: HouseholdResponseDto;
-  onJoin: () => void;
-};
+type HouseholdCardProps =
+  | { household: HouseholdResponseDto; userId: string; onJoin: () => void; onOpen?: never }
+  | { household: HouseholdResponseDto; userId: string; onOpen: () => void; onJoin?: never };
 
-export function HouseholdCard({ household, onJoin }: HouseholdCardProps) {
+export function HouseholdCard({ household, userId, onJoin, onOpen }: HouseholdCardProps) {
+  const currentUserRole = household.members.find((member) => member.userId === userId)?.role;
   const memberNames = household.members
     .map((member) => member.firstName.trim())
     .filter(Boolean)
@@ -24,26 +24,23 @@ export function HouseholdCard({ household, onJoin }: HouseholdCardProps) {
   return (
     <Card className="gap-0 py-0">
       <CardHeader className="grid-cols-[1fr_auto] items-center px-6 pt-6 sm:px-8 sm:pt-8">
-        <CardTitle className="truncate text-xl">{household.name}</CardTitle>
+        <div className="min-w-0">
+          <CardTitle className="truncate text-xl">{household.name}</CardTitle>
+          {currentUserRole && (
+            <span className="mt-2 inline-flex items-center rounded-full border border-primary/20 bg-primary/5 px-2.5 py-1 text-xs font-medium text-primary">
+              Your role · {currentUserRole}
+            </span>
+          )}
+        </div>
         <CardAction className="row-span-1">
-          <Button type="button" onClick={onJoin}>
-            <UserPlus aria-hidden="true" />
-            Join
+          <Button type="button" onClick={onOpen ?? onJoin}>
+            {onOpen ? <ArrowUpRight aria-hidden="true" /> : <UserPlus aria-hidden="true" />}
+            {onOpen ? "Open" : "Join"}
           </Button>
         </CardAction>
       </CardHeader>
 
       <CardContent className="flex flex-1 flex-col gap-3 px-6 pb-6 pt-4 sm:px-8 sm:pb-8">
-        <div className="flex flex-wrap gap-2" aria-label="Household member roles">
-          {household.members.map((member) => (
-            <span
-              key={member.id}
-              className="w-fit rounded-md bg-muted px-3 py-1 text-sm font-medium text-foreground"
-            >
-              {member.role}
-            </span>
-          ))}
-        </div>
         <p className="truncate text-sm text-muted-foreground" title={memberNames}>
           {memberNames || "No members yet"}
         </p>
