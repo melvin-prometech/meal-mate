@@ -1,12 +1,14 @@
+"use server";
+
 import type { MealResponseDto, UpdateMealDto } from "@meal-mate/schemas";
-import { apiClient } from "@/lib/api-client";
+import { authenticatedClient } from "@/lib/authenticated-client";
 
 export async function updateMeal(
   householdId: string,
   mealId: string,
   data: UpdateMealDto,
 ): Promise<MealResponseDto> {
-  const response = await apiClient.fetch(
+  const response = await authenticatedClient.fetch(
     `/households/${encodeURIComponent(householdId)}/meals/${encodeURIComponent(mealId)}`,
     {
       method: "PATCH",

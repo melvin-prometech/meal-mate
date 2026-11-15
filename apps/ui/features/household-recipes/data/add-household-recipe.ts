@@ -1,11 +1,13 @@
+"use server";
+
 import type { CreateHouseholdRecipeDto, HouseholdRecipeResponseDto } from "@meal-mate/schemas";
-import { apiClient } from "@/lib/api-client";
+import { authenticatedClient } from "@/lib/authenticated-client";
 
 export async function addHouseholdRecipe(
   householdId: string,
   data: CreateHouseholdRecipeDto,
 ): Promise<HouseholdRecipeResponseDto> {
-  const response = await apiClient.fetch(`/household-recipes/${encodeURIComponent(householdId)}`, {
+  const response = await authenticatedClient.fetch(`/household-recipes/${encodeURIComponent(householdId)}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),

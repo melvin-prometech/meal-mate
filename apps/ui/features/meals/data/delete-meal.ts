@@ -1,7 +1,9 @@
-import { apiClient } from "@/lib/api-client";
+"use server";
+
+import { authenticatedClient } from "@/lib/authenticated-client";
 
 export async function deleteMeal(householdId: string, mealId: string): Promise<void> {
-  const response = await apiClient.fetch(
+  const response = await authenticatedClient.fetch(
     `/households/${encodeURIComponent(householdId)}/meals/${encodeURIComponent(mealId)}`,
     { method: "DELETE" },
   );

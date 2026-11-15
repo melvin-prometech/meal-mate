@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import { Suspense, type ReactNode } from "react";
 import { AppSidebar } from "@/features/layout/components/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";

@@ -1,8 +1,11 @@
 import type { CreateFavoriteRecipeDto } from "@meal-mate/schemas";
-import { apiClient } from "@/lib/api-client";
+import { authenticatedClient } from "@/lib/authenticated-client";
 
-export async function addFavoriteRecipe(userId: string, data: CreateFavoriteRecipeDto): Promise<void> {
-  const response = await apiClient.fetch(`/users/${encodeURIComponent(userId)}/favorite-recipes`, {
+export async function addFavoriteRecipe(
+  userId: string,
+  data: CreateFavoriteRecipeDto,
+): Promise<void> {
+  const response = await authenticatedClient.fetch(`/users/${encodeURIComponent(userId)}/favorite-recipes`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),

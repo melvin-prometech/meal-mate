@@ -1,6 +1,9 @@
 import { Clock3, Heart, UsersRound } from "lucide-react";
-import type { RecipeResponseDto } from "@meal-mate/schemas";
+import { UserRole, type RecipeResponseDto } from "@meal-mate/schemas";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { RecipeCardAdminActions } from "@/features/recipes/components/recipe-card-admin-actions";
+import { useUser } from "@/features/users/components/user-provider";
 import {
   Card,
   CardAction,
@@ -13,9 +16,13 @@ import {
 
 type RecipeCardProps = {
   recipe: RecipeResponseDto;
+  isFavorite: boolean;
+  onToggleFavorite: () => void;
+  onDeleted: () => void;
 };
 
-export function RecipeCard({ recipe }: RecipeCardProps) {
+export function RecipeCard({ recipe, isFavorite, onToggleFavorite, onDeleted }: RecipeCardProps) {
+  const { role } = useUser();
   const prepTime = Number.isFinite(recipe.prepTime) && recipe.prepTime >= 0
     ? recipe.prepTime
     : null;
@@ -31,7 +38,22 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
       <CardHeader className="grid-cols-[1fr_auto] items-start px-6 pt-6 sm:px-8 sm:pt-8">
         <CardTitle className="truncate text-xl">{recipe.title}</CardTitle>
         <CardAction>
-          <Heart aria-hidden="true" className="size-6 text-foreground" />
+          <div className="flex items-center gap-1">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label={isFavorite ? `Remove ${recipe.title} from favorites` : `Add ${recipe.title} to favorites`}
+              aria-pressed={isFavorite}
+              onClick={onToggleFavorite}
+            >
+              <Heart
+                aria-hidden="true"
+                className={isFavorite ? "size-6 fill-current text-red-600" : "size-6 text-foreground"}
+              />
+            </Button>
+            {role === UserRole.ADMIN ? <RecipeCardAdminActions recipeId={recipe.id} recipeTitle={recipe.title} onDeleted={onDeleted} /> : null}
+          </div>
         </CardAction>
         {recipe.description?.trim() ? (
           <CardDescription className="col-span-2 line-clamp-2 mt-1">
