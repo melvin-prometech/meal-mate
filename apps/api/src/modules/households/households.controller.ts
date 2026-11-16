@@ -5,6 +5,7 @@ import {
   Delete,
   Param,
   Body,
+  Patch,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -14,7 +15,7 @@ import {
   ApiNotFoundResponse,
   ApiBadRequestResponse,
   ApiConflictResponse,
-  ApiNoContentResponse
+  ApiNoContentResponse,
 } from '@nestjs/swagger';
 
 import { HouseholdsService } from './households.service.js';
@@ -23,6 +24,7 @@ import type { CreateHouseholdDto } from '@meal-mate/schemas';
 import type { AddHouseholdMemberDto } from '@meal-mate/schemas';
 import type { HouseholdMemberResponseDto } from '@meal-mate/schemas';
 import type { RemoveHouseholdMemberDto } from '@meal-mate/schemas';
+import type { UpdateHouseholdMemberRoleDto } from '@meal-mate/schemas';
 
 @ApiTags('Households')
 @Controller('/households')
@@ -40,6 +42,20 @@ export class HouseholdsController {
     })
     async findAll(): Promise<HouseholdResponseDto[]> {
         return await this.householdsService.findAll();
+    }
+
+    @Get('user/:userId')
+    @ApiOperation({
+        summary: 'Get households for a user',
+        description: 'Retrieves the households that the specified user belongs to.',
+    })
+    @ApiOkResponse({
+        description: 'Successfully retrieved the user\'s households. Returns an empty array if the user has no household memberships.',
+    })
+    async findByUserId(
+        @Param('userId') userId: string,
+    ): Promise<HouseholdResponseDto[]> {
+        return this.householdsService.findHouseholdsByUserId(userId);
     }
 
     @Get(':householdId')
@@ -122,5 +138,17 @@ export class HouseholdsController {
         @Body() dto: RemoveHouseholdMemberDto, 
     ): Promise<void> {
         await this.householdsService.removeMember(householdId, dto);
+    }
+
+    @Patch(':householdId/members/role')
+    @ApiOperation({ summary: 'Change a household member role' })
+    @ApiOkResponse({ description: 'Member role successfully updated.' })
+    @ApiBadRequestResponse({ description: 'Invalid role update request.' })
+    @ApiNotFoundResponse({ description: 'Household, user, or membership not found.' })
+    async updateMemberRole(
+        @Param('householdId') householdId: string,
+        @Body() dto: UpdateHouseholdMemberRoleDto,
+    ): Promise<HouseholdMemberResponseDto> {
+        return this.householdsService.updateMemberRole(householdId, dto);
     }
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BookOpen, Heart, House, Utensils } from "lucide-react";
@@ -24,7 +25,7 @@ const navigation = [
   { label: "Households", href: "/households", icon: House },
 ];
 
-export function AppSidebar() {
+export function AppSidebar({ households }: { households: ReactNode }) {
   const pathname = usePathname();
 
   return (
@@ -52,7 +53,7 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu className="gap-1">
               {navigation.map(({ label, href, icon: Icon }) => {
-                const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
+                const active = pathname === href;
 
                 return (
                   <SidebarMenuItem key={href}>
@@ -76,9 +77,7 @@ export function AppSidebar() {
             My households
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <div className="px-3 py-2 text-sm text-muted-foreground">
-              Households will appear here.
-            </div>
+            {households}
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>

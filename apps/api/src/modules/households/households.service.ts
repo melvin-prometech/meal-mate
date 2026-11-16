@@ -2,7 +2,7 @@ import z from 'zod';
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { FindHouseholdByIdDto, HouseholdRole, RemoveHouseholdMemberDto } from '@meal-mate/schemas';
+import { FindHouseholdByIdDto, HouseholdRole, RemoveHouseholdMemberDto, UpdateHouseholdMemberRoleDto } from '@meal-mate/schemas';
 import { CreateHouseholdDto } from '@meal-mate/schemas';
 
 import { Household } from './entities/household.entity.js';
@@ -38,6 +38,24 @@ export class HouseholdsService {
     const formatted = mapHouseholdsToResponseDto(households);
 
     return z.array(HouseholdResponseSchema).parse(formatted);
+  }
+
+  async findHouseholdsByUserId(userId: string): Promise<HouseholdResponseDto[]> {
+    const households = await this.householdRepository.find({
+      where: {
+        members: { userId },
+      },
+      relations: {
+        members: {
+          user: true,
+        },
+      },
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+
+    return z.array(HouseholdResponseSchema).parse(mapHouseholdsToResponseDto(households));
   }
 
   async findHouseholdById(householdId: string): Promise<HouseholdResponseDto> {
@@ -142,5 +160,29 @@ export class HouseholdsService {
     }
 
     await memberRepo.delete({ householdId, userId: dto.userId });
+  }
+
+  async updateMemberRole(
+    householdId: string,
+    dto: UpdateHouseholdMemberRoleDto,
+  ): Promise<HouseholdMemberResponseDto> {
+    const memberRepo = this.householdRepository.manager.getRepository(HouseholdMember);
+
+    if (!(await this.householdRepository.exists({ where: { id: householdId } }))) {
+      throw new NotFoundException(`Household with ID "${householdId}" not found`);
+    }
+    if (!(await this.usersService.exists(dto.userId))) {
+      throw new NotFoundException('User not found');
+    }
+
+    const member = await memberRepo.findOne({ where: { householdId, userId: dto.userId } });
+    if (!member) {
+      throw new NotFoundException('User is not a member of this household');
+    }
+
+    member.role = dto.role;
+    const savedMember = await memberRepo.save(member);
+    savedMember.user = await this.usersService.findOne({ id: dto.userId }) as User;
+    return mapMemberToResponseDto(savedMember);
   }
 }
