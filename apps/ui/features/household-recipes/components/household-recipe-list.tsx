@@ -6,13 +6,15 @@ import { RecipeCard } from "@/features/recipes/components/recipe-card";
 import { HouseholdRecipeActions } from "@/features/household-recipes/components/household-recipe-actions";
 import { useUser } from "@/features/users/components/user-provider";
 
+type HouseholdRecipeListProps = {
+  household: HouseholdResponseDto;
+  recipes: HouseholdRecipeWithRecipeResponseDto[];
+}
+
 export function HouseholdRecipeList({
   household,
   recipes: initialRecipes,
-}: {
-  household: HouseholdResponseDto;
-  recipes: HouseholdRecipeWithRecipeResponseDto[];
-}) {
+}: HouseholdRecipeListProps) {
   const { id: userId, role: userRole } = useUser();
   const [recipes, setRecipes] = useState(initialRecipes);
   const currentHouseholdRole = household.members.find((member) => member.userId === userId)?.role;
