@@ -7,6 +7,8 @@ import { HouseholdRecipeList } from "@/features/household-recipes/components/hou
 import { getHouseholdRecipes } from "@/features/household-recipes/data/get-household-recipes";
 import { getMeals } from "@/features/meals/data/get-meals";
 import { MealPlanner } from "@/features/meals/components/meal-planner";
+import { getShoppingList } from "@/features/meals/data/get-shopping-list";
+import { ShoppingList } from "@/features/meals/components/shopping-list";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function HouseholdPage({
@@ -37,9 +39,10 @@ async function HouseholdContent({
   } catch {
     notFound();
   }
-  const [recipes, meals] = await Promise.all([
+  const [recipes, meals, shoppingList] = await Promise.all([
     getHouseholdRecipes(household.id),
     getMeals(household.id, { from: weekStart, to: addDays(weekStart, 6) }),
+    getShoppingList(household.id, { from: weekStart, to: addDays(weekStart, 6) }),
   ]);
 
   return (
@@ -61,8 +64,8 @@ async function HouseholdContent({
         <TabsContent value="recipes" className="pt-6">
           <HouseholdRecipeList household={household} recipes={recipes} />
         </TabsContent>
-        <TabsContent value="shopping-list" className="pt-6">
-          <SectionPlaceholder title="Shopping List" />
+        <TabsContent value="shopping-list" className="pt-6" keepMounted>
+          <ShoppingList key={weekStart} householdId={household.id} items={shoppingList} weekStart={weekStart} />
         </TabsContent>
         <TabsContent value="members" className="pt-6">
           <Members householdId={household.id} members={household.members} />
@@ -85,10 +88,3 @@ function addDays(value: string, count: number): string {
   return date.toISOString().slice(0, 10);
 }
 
-function SectionPlaceholder({ title }: { title: string }) {
-  return (
-    <section className="flex min-h-48 items-center justify-center rounded-lg border border-dashed border-border text-sm text-muted-foreground">
-      {title} coming soon
-    </section>
-  );
-}
