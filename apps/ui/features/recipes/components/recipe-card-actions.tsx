@@ -8,14 +8,13 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { addHouseholdRecipe } from "@/features/household-recipes/data/add-household-recipe";
 import { getHouseholdRecipes } from "@/features/household-recipes/data/get-household-recipes";
-import { removeHouseholdRecipe } from "@/features/household-recipes/data/remove-household-recipe";
 import { getHouseholdsByUserId } from "@/features/households/data/get-households-by-user-id";
 import { deleteRecipe } from "@/features/recipes/data/delete-recipe";
 import { useUser } from "@/features/users/components/user-provider";
 
 type HouseholdOption = { id: string; name: string; saved: boolean };
 
-export function RecipeCardAdminActions({ recipeId, recipeTitle, onDeleted }: {
+export function RecipeCardActions({ recipeId, recipeTitle, onDeleted }: {
   recipeId: string;
   recipeTitle: string;
   onDeleted: () => void;
@@ -46,8 +45,7 @@ export function RecipeCardAdminActions({ recipeId, recipeTitle, onDeleted }: {
     setBusyId(household.id);
     setError("");
     try {
-      if (household.saved) await removeHouseholdRecipe(household.id, recipeId);
-      else await addHouseholdRecipe(household.id, { recipeId, addedBy: userId });
+      await addHouseholdRecipe(household.id, { recipeId, addedBy: userId });
       setHouseholds((current) => current?.map((item) => item.id === household.id ? { ...item, saved: !item.saved } : item) ?? null);
       router.refresh();
     } catch {

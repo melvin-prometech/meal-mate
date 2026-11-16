@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { BookOpen, CalendarDays, ShoppingCart, Users } from "lucide-react";
 import { getHouseholdById } from "@/features/households/data/get-household-by-id";
 import { Members } from "@/features/households/components/members";
+import { HouseholdRecipeList } from "@/features/household-recipes/components/household-recipe-list";
+import { getHouseholdRecipes } from "@/features/household-recipes/data/get-household-recipes";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function HouseholdPage({
@@ -32,6 +34,7 @@ async function HouseholdContent({
   } catch {
     notFound();
   }
+  const recipes = await getHouseholdRecipes(household.id);
 
   return (
     <main className="mx-auto flex min-h-svh w-full max-w-8xl flex-col px-6 py-8 sm:px-10">
@@ -50,7 +53,7 @@ async function HouseholdContent({
           <SectionPlaceholder title="Meal planner" />
         </TabsContent>
         <TabsContent value="recipes" className="pt-6">
-          <SectionPlaceholder title="Recipes" />
+          <HouseholdRecipeList household={household} recipes={recipes} />
         </TabsContent>
         <TabsContent value="shopping-list" className="pt-6">
           <SectionPlaceholder title="Shopping List" />
