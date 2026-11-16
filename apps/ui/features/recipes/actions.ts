@@ -23,7 +23,6 @@ export async function submitRecipe(
     instructions: formData.get("instructions"),
     prepTime: Number(formData.get("prepTime")),
     servings: Number(formData.get("servings")),
-    createdBy: formData.get("createdBy"),
     ingredients,
   });
 

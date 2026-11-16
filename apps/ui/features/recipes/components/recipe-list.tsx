@@ -10,7 +10,6 @@ import { RecipeCard } from "@/features/recipes/components/recipe-card";
 import { RecipeCardActions } from "@/features/recipes/components/recipe-card-actions";
 import { toggleFavoriteRecipe } from "@/features/favorites/data/toggle-favorite-recipe";
 import { getFavoriteRecipes } from "@/features/favorites/data/get-favorite-recipes";
-import { useUser } from "@/features/users/components/user-provider";
 
 type RecipeListProps = {
   recipes: RecipeResponseDto[];
@@ -19,7 +18,6 @@ type RecipeListProps = {
 };
 
 export function RecipeList({ recipes, favoritesOnly = false, emptyState }: RecipeListProps) {
-  const { id: userId } = useUser();
   const pathname = usePathname();
   const router = useRouter();
   const [favoriteIds, setFavoriteIds] = useState<Set<string>>(() => new Set());
@@ -29,20 +27,20 @@ export function RecipeList({ recipes, favoritesOnly = false, emptyState }: Recip
 
   useEffect(() => {
     let cancelled = false;
-    getFavoriteRecipes(userId).then((favorites) => {
+    getFavoriteRecipes().then((favorites) => {
       if (cancelled) return;
       setFavoriteIds(new Set(favorites.map((recipe) => recipe.id)));
       setFavoriteRecipes(favorites);
       setFavoritesLoaded(true);
     });
     return () => { cancelled = true; };
-  }, [pathname, userId, favoritesOnly, favoritesVersion]);
+  }, [pathname, favoritesOnly, favoritesVersion]);
 
   if (!favoritesLoaded) return <div className="min-h-72 flex-1" />;
 
   async function handleToggleFavorite(recipeId: string) {
     const wasFavorite = favoriteIds.has(recipeId);
-    await toggleFavoriteRecipe(userId, recipeId, wasFavorite);
+    await toggleFavoriteRecipe(recipeId, wasFavorite);
 
     setFavoriteIds((current) => {
       const next = new Set(current);

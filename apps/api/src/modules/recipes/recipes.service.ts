@@ -8,7 +8,6 @@ import { Recipe } from "./entities/recipe.entity.js";
 import { Ingredient } from '../ingredients/entities/ingredient.entity.js';
 import { RecipeIngredient } from './entities/recipe-ingredient.entity.js';
 import { IngredientsService } from '../ingredients/ingredients.service.js';
-import { UsersService } from '../users/users.service.js';
 import { mapManyRecipesToResponseDto, mapOneRecipeToResponseDto } from './lib/recipes.mapper.js';
 
 
@@ -17,7 +16,6 @@ export class RecipesService {
   constructor(
     @InjectRepository(Recipe)
     private readonly recipeRepository: Repository<Recipe>,
-    private readonly usersService: UsersService,
     private readonly ingredientsService: IngredientsService,
   ) {}
 
@@ -56,6 +54,7 @@ export class RecipesService {
 
   async createRecipe(
     data: CreateRecipeDto,
+    createdBy: string,
   ): Promise<CreateRecipeResponseDto> {
     return this.recipeRepository.manager.transaction(async (manager) => {
 
@@ -65,11 +64,7 @@ export class RecipesService {
 
       const { ingredients, ...recipeData } = data;
 
-      if (data.createdBy && !(await this.usersService.exists(data.createdBy))) {
-        throw new NotFoundException('User not found');
-      }
-
-      const recipe = recipeRepo.create(recipeData);
+      const recipe = recipeRepo.create({ ...recipeData, createdBy });
       const savedRecipe = await recipeRepo.save(recipe);
 
       for (const ingredientData of ingredients) {

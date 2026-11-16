@@ -5,11 +5,9 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { useUser } from "@/features/users/components/user-provider";
 import { submitHousehold } from "../actions";
 
 export function CreateHouseholdDialog() {
-  const { id: userId } = useUser();
   const [open, setOpen] = useState(false);
   const [state, action, pending] = useActionState(submitHousehold, {});
 
@@ -26,7 +24,6 @@ export function CreateHouseholdDialog() {
           <DialogDescription>Add a name for your household.</DialogDescription>
         </DialogHeader>
         <form action={action} className="space-y-5">
-          <input type="hidden" name="userId" value={userId} />
           <label className="block space-y-2 text-sm font-medium" htmlFor="household-name">
             Name
             <Input id="household-name" name="name" required minLength={2} maxLength={50} placeholder="e.g. The Smiths" />

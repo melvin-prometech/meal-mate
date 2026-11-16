@@ -6,13 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useUser } from "@/features/users/components/user-provider";
 import { submitRecipe } from "../actions";
 
 type IngredientRow = { id: number };
 
 export function CreateRecipeDialog() {
-  const { id: userId } = useUser();
   const [open, setOpen] = useState(false);
   const [ingredients, setIngredients] = useState<IngredientRow[]>([{ id: 0 }]);
   const [state, action, pending] = useActionState(submitRecipe, {});
@@ -41,7 +39,6 @@ export function CreateRecipeDialog() {
           <DialogDescription>Add the recipe details and its ingredients.</DialogDescription>
         </DialogHeader>
         <form action={action} className="space-y-5">
-          <input type="hidden" name="createdBy" value={userId} />
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Title" name="title" required placeholder="e.g. Tomato pasta" />
             <Field label="Description" name="description" placeholder="A short introduction" />

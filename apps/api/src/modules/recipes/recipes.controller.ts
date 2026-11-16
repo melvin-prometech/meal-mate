@@ -1,5 +1,5 @@
 
-import { Param, Body, Controller, Get, Post, Patch, Delete } from '@nestjs/common';
+import { Param, Body, Controller, Get, Post, Patch, Delete, Req, UseGuards } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
@@ -21,10 +21,13 @@ import type {
   RecipeResponseDto,
   UpdateRecipeDto
 } from '@meal-mate/schemas';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
+import type { AuthenticatedRequest } from '../../types/authenticated-request.js';
 
 
 @ApiTags('Recipes')
 @Controller('recipes')
+@UseGuards(JwtAuthGuard)
 export class RecipesController {
   constructor(private readonly recipesService: RecipesService) {}
 
@@ -58,8 +61,9 @@ export class RecipesController {
   })
   async createUser(
     @Body({ schema: CreateRecipeSchema }) data: CreateRecipeDto,
+    @Req() request: AuthenticatedRequest,
   ): Promise<CreateRecipeResponseDto> {
-    return this.recipesService.createRecipe(data);
+    return this.recipesService.createRecipe(data, request.user.id);
   }
 
   @Get(':id')

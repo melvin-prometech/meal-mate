@@ -8,7 +8,6 @@ export const CreateRecipeSchema = z.object({
   instructions: z.string().min(1),
   prepTime: z.number().int().nonnegative(),
   servings: z.number().int().positive(),
-  createdBy: z.uuid().nullable().optional(),
   ingredients: z.array(CreateRecipeIngredientSchema).min(1),
 });
 

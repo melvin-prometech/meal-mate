@@ -9,7 +9,6 @@ import { Household } from './entities/household.entity.js';
 import { HouseholdMember } from './entities/household-member.entity.js';
 import { User } from '../users/entities/user.entity.js';
 import { UsersService } from '../users/users.service.js';
-import { AddHouseholdMemberDto } from '@meal-mate/schemas';
 import { HouseholdResponseDto, HouseholdResponseSchema, HouseholdMemberResponseDto } from '@meal-mate/schemas';
 import { mapHouseholdsToResponseDto } from './lib/households-mapper.js';
 import { mapMemberToResponseDto, mapHouseholdToResponseDto } from './lib/households-mapper.js';
@@ -104,7 +103,7 @@ export class HouseholdsService {
 
   async addMember(
     householdId: string,
-    dto: AddHouseholdMemberDto,
+    userId: string,
   ): Promise<HouseholdMemberResponseDto> {
     const memberRepo = this.householdRepository.manager.getRepository(HouseholdMember);
 
@@ -115,12 +114,12 @@ export class HouseholdsService {
       throw new NotFoundException(`Household with ID "${householdId}" not found`);
     }
 
-    if (!(await this.usersService.exists(dto.userId))) {
+    if (!(await this.usersService.exists(userId))) {
       throw new NotFoundException('User not found');
     }
 
     const existingMember = await memberRepo.findOne({
-      where: { householdId, userId: dto.userId },
+      where: { householdId, userId },
     });
     if (existingMember) {
       throw new ConflictException('User is already a member of this household');
@@ -128,12 +127,12 @@ export class HouseholdsService {
 
     const member = memberRepo.create({
       householdId,
-      userId: dto.userId,
+      userId,
       role: HouseholdRole.MEMBER,
     });
 
     const savedMember = await memberRepo.save(member);
-    const user = await this.usersService.findOne({id: dto.userId});
+    const user = await this.usersService.findOne({id: userId});
     savedMember.user = user as User;
 
     return mapMemberToResponseDto(savedMember);

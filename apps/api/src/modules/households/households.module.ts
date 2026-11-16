@@ -5,16 +5,21 @@ import { HouseholdMember } from './entities/household-member.entity.js';
 import { UsersModule } from '../users/users.module.js';
 import { HouseholdsService } from './households.service.js';
 import { HouseholdsController } from './households.controller.js';
+import { AuthModule } from '../auth/auth.module.js';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
+import { User } from '../users/entities/user.entity.js';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
       Household, 
-      HouseholdMember
+      HouseholdMember,
+      User,
     ]), 
-    UsersModule
+    UsersModule,
+    AuthModule,
   ],
   controllers: [HouseholdsController],
-  providers: [HouseholdsService]
+  providers: [HouseholdsService, JwtAuthGuard]
 })
 export class HouseholdsModule {}

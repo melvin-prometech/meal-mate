@@ -3,9 +3,9 @@
 import type { RecipeResponseDto } from "@meal-mate/schemas";
 import { authenticatedClient } from "@/lib/authenticated-client";
 
-export async function getFavoriteRecipes(userId: string): Promise<RecipeResponseDto[]> {
+export async function getFavoriteRecipes(): Promise<RecipeResponseDto[]> {
   const response = await authenticatedClient.fetch(
-    `/users/${encodeURIComponent(userId)}/favorite-recipes`,
+    "/users/me/favorite-recipes",
     { cache: "no-store" },
   );
 
