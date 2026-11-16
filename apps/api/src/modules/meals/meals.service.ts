@@ -77,6 +77,7 @@ export class MealsService {
     if (!(await this.householdRecipeRepository.exists({ where: { id: dto.householdRecipeId, householdId } }))) {
       throw new NotFoundException('Household recipe not found');
     }
+    await this.ensureDateIsAvailable(householdId, dto.date);
     const meal = this.mealRepository.create({ ...dto });
     try {
       return MealResponseSchema.parse(await this.mealRepository.save(meal));
@@ -92,6 +93,7 @@ export class MealsService {
       where: { id: mealId, householdRecipe: { householdId } },
     });
     if (!meal) throw new NotFoundException('Meal not found');
+    if (dto.date) await this.ensureDateIsAvailable(householdId, dto.date, mealId);
     Object.assign(meal, dto);
     try {
       return MealResponseSchema.parse(await this.mealRepository.save(meal));
@@ -114,6 +116,17 @@ export class MealsService {
     if (!(await this.householdRepository.exists({ where: { id: householdId } }))) {
       throw new NotFoundException(`Household with ID "${householdId}" not found`);
     }
+  }
+
+  private async ensureDateIsAvailable(householdId: string, date: string, excludeMealId?: string): Promise<void> {
+    const query = this.mealRepository
+      .createQueryBuilder('meal')
+      .innerJoin('meal.householdRecipe', 'householdRecipe')
+      .where('householdRecipe.householdId = :householdId', { householdId })
+      .andWhere('meal.date = :date', { date });
+    if (excludeMealId) query.andWhere('meal.id <> :excludeMealId', { excludeMealId });
+    const existingMeal = await query.getOne();
+    if (existingMeal) throw new ConflictException('A meal is already planned for this date');
   }
 
   private throwIfDuplicate(error: unknown): void {
