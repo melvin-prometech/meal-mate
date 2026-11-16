@@ -45,7 +45,7 @@ export function RecipeCardActions({ recipeId, recipeTitle, onDeleted }: {
     setBusyId(household.id);
     setError("");
     try {
-      await addHouseholdRecipe(household.id, { recipeId, addedBy: userId });
+      await addHouseholdRecipe(household.id, { recipeId });
       setHouseholds((current) => current?.map((item) => item.id === household.id ? { ...item, saved: !item.saved } : item) ?? null);
       router.refresh();
     } catch {
