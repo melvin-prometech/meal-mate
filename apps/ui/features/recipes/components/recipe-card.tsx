@@ -1,9 +1,8 @@
 import { Clock3, Heart, UsersRound } from "lucide-react";
-import { UserRole, type RecipeResponseDto } from "@meal-mate/schemas";
+import type { RecipeResponseDto } from "@meal-mate/schemas";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { RecipeCardAdminActions } from "@/features/recipes/components/recipe-card-admin-actions";
-import { useUser } from "@/features/users/components/user-provider";
 import {
   Card,
   CardAction,
@@ -22,7 +21,6 @@ type RecipeCardProps = {
 };
 
 export function RecipeCard({ recipe, isFavorite, onToggleFavorite, onDeleted }: RecipeCardProps) {
-  const { role } = useUser();
   const prepTime = Number.isFinite(recipe.prepTime) && recipe.prepTime >= 0
     ? recipe.prepTime
     : null;
@@ -52,7 +50,7 @@ export function RecipeCard({ recipe, isFavorite, onToggleFavorite, onDeleted }: 
                 className={isFavorite ? "size-6 fill-current text-red-600" : "size-6 text-foreground"}
               />
             </Button>
-            {role === UserRole.ADMIN ? <RecipeCardAdminActions recipeId={recipe.id} recipeTitle={recipe.title} onDeleted={onDeleted} /> : null}
+            <RecipeCardAdminActions recipeId={recipe.id} recipeTitle={recipe.title} onDeleted={onDeleted} />
           </div>
         </CardAction>
         {recipe.description?.trim() ? (
