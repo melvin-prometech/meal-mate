@@ -1,8 +1,23 @@
+import { Suspense } from "react";
 import { CreateHouseholdDialog } from "@/features/households/components/create-household-dialog";
 import { HouseholdList } from "@/features/households/components/household-list";
 import { getHouseholds } from "@/features/households/data/get-households";
 
-export default async function HouseholdsPage() {
+export default function HouseholdsPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="mx-auto flex min-h-svh w-full max-w-8xl flex-col px-6 py-8 text-sm text-muted-foreground sm:px-10">
+          Loading households…
+        </main>
+      }
+    >
+      <HouseholdsContent />
+    </Suspense>
+  );
+}
+
+async function HouseholdsContent() {
   const households = await getHouseholds();
 
   return (
