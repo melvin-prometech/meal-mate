@@ -22,6 +22,8 @@ import type {
   UpdateRecipeDto
 } from '@meal-mate/schemas';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
+import { AdminGuard } from '../auth/guards/admin.guard.js';
+import { UserRole } from '@meal-mate/schemas';
 import type { AuthenticatedRequest } from '../../types/authenticated-request.js';
 
 
@@ -94,11 +96,13 @@ export class RecipesController {
   async update(
     @Param('id') id: string,
     @Body() updateRecipeDto: UpdateRecipeDto,
+    @Req() request: AuthenticatedRequest,
   ): Promise<CreateRecipeResponseDto> {
-    return this.recipesService.updateRecipe(id, updateRecipeDto);
+    return this.recipesService.updateRecipe(id, updateRecipeDto, request.user.id, request.user.role === UserRole.ADMIN);
   }
 
   @Delete(':id')
+  @UseGuards(AdminGuard)
   @ApiOperation({ summary: 'Delete a recipe' })
   @ApiOkResponse({
     description: 'Recipe deleted successfully',

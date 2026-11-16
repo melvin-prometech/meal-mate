@@ -1,5 +1,5 @@
 
-import { Param, Body, Controller, Get, Post, Patch, Delete } from '@nestjs/common';
+import { Param, Body, Controller, Get, Post, Patch, Delete, UseGuards } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
@@ -17,9 +17,12 @@ import {
 } from '@meal-mate/schemas';
 
 import { UsersService } from './users.service.js';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
+import { AdminGuard } from '../auth/guards/admin.guard.js';
 
 @ApiTags('Users')
 @Controller('users')
+@UseGuards(JwtAuthGuard, AdminGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 

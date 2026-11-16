@@ -28,6 +28,8 @@ import type { RemoveHouseholdMemberDto } from '@meal-mate/schemas';
 import type { UpdateHouseholdMemberRoleDto } from '@meal-mate/schemas';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
 import type { AuthenticatedRequest } from '../../types/authenticated-request.js';
+import { HouseholdGuard } from '../auth/guards/household.guard.js';
+import { HouseholdAdminGuard } from '../auth/guards/household-admin.guard.js';
 
 @ApiTags('Households')
 @Controller('/households')
@@ -63,6 +65,7 @@ export class HouseholdsController {
     }
 
     @Get(':householdId')
+    @UseGuards(HouseholdGuard)
     @ApiOperation({
         summary: 'Get household by ID',
         description: 'Retrieves a single household by its ID including its members and their user details.',
@@ -127,6 +130,7 @@ export class HouseholdsController {
 
 
     @Delete(':householdId/members')
+    @UseGuards(HouseholdAdminGuard)
     @ApiOperation({
         summary: 'Remove a member from a household',
         description: 'Removes a user from the specified household.',
@@ -145,6 +149,7 @@ export class HouseholdsController {
     }
 
     @Patch(':householdId/members/role')
+    @UseGuards(HouseholdAdminGuard)
     @ApiOperation({ summary: 'Change a household member role' })
     @ApiOkResponse({ description: 'Member role successfully updated.' })
     @ApiBadRequestResponse({ description: 'Invalid role update request.' })

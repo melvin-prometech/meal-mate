@@ -10,6 +10,7 @@ import { AuthModule } from '../auth/auth.module.js';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
 import { HouseholdGuard } from '../auth/guards/household.guard.js';
 import { User } from '../users/entities/user.entity.js';
+import { HouseholdAdminGuard } from '../auth/guards/household-admin.guard.js';
 
 @Module({
   imports: [
@@ -17,6 +18,6 @@ import { User } from '../users/entities/user.entity.js';
     AuthModule,
   ],
   controllers: [HouseholdRecipesController],
-  providers: [HouseholdRecipesService, JwtAuthGuard, HouseholdGuard],
+  providers: [HouseholdRecipesService, JwtAuthGuard, HouseholdGuard, HouseholdAdminGuard],
 })
 export class HouseholdRecipesModule {}

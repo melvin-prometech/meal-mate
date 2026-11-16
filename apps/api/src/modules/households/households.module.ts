@@ -8,6 +8,8 @@ import { HouseholdsController } from './households.controller.js';
 import { AuthModule } from '../auth/auth.module.js';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
 import { User } from '../users/entities/user.entity.js';
+import { HouseholdGuard } from '../auth/guards/household.guard.js';
+import { HouseholdAdminGuard } from '../auth/guards/household-admin.guard.js';
 
 @Module({
   imports: [
@@ -20,6 +22,6 @@ import { User } from '../users/entities/user.entity.js';
     AuthModule,
   ],
   controllers: [HouseholdsController],
-  providers: [HouseholdsService, JwtAuthGuard]
+  providers: [HouseholdsService, JwtAuthGuard, HouseholdGuard, HouseholdAdminGuard]
 })
 export class HouseholdsModule {}

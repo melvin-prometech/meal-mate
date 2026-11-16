@@ -21,6 +21,8 @@ import {
   type UserResponseDto,
 } from '@meal-mate/schemas';
 import { AuthService } from './auth.service.js';
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from './guards/jwt-auth.guard.js';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -41,6 +43,7 @@ export class AuthController {
   }
 
   @Get('me')
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access-token')
   @ApiOperation({
     summary: 'Get the user represented by a Bearer access token',

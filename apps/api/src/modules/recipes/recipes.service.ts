@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { DeepPartial } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import z from 'zod';
@@ -93,6 +93,8 @@ export class RecipesService {
   async updateRecipe(
     id: string,
     data: Partial<CreateRecipeDto>,
+    userId: string,
+    isGlobalAdmin: boolean,
   ): Promise<CreateRecipeResponseDto> {
     return this.recipeRepository.manager.transaction(async (manager) => {
       const recipeRepo = manager.getRepository(Recipe);
@@ -103,6 +105,9 @@ export class RecipesService {
 
       if (!recipe) {
         throw new NotFoundException(`Recipe with ID "${id}" not found`);
+      }
+      if (!isGlobalAdmin && recipe.createdBy !== userId) {
+        throw new ForbiddenException('Only the recipe owner can update this recipe');
       }
 
       const { ingredients, ...recipeData } = data;
