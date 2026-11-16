@@ -2,6 +2,8 @@
 
 import { SidebarFooter } from "@/components/ui/sidebar";
 import { useUser } from "@/features/users/components/user-provider";
+import { LogOut } from "lucide-react";
+import { signOut } from "@/features/auth/actions";
 
 export function SidebarUser() {
   const { firstName, lastName } = useUser();
@@ -16,9 +18,19 @@ export function SidebarUser() {
         >
           {initials}
         </span>
-        <span className="truncate text-[15px] font-medium group-data-[collapsible=icon]:hidden">
+        <span className="min-w-0 flex-1 truncate text-[15px] font-medium group-data-[collapsible=icon]:hidden">
           {firstName} {lastName}
         </span>
+        <form action={signOut}>
+          <button
+            type="submit"
+            aria-label="Log out"
+            title="Log out"
+            className="flex size-9 shrink-0 items-center justify-center rounded-md text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring focus-visible:outline-none"
+          >
+            <LogOut aria-hidden="true" className="size-4" />
+          </button>
+        </form>
       </div>
     </SidebarFooter>
   );

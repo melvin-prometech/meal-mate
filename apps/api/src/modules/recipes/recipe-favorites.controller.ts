@@ -1,5 +1,6 @@
 import { Controller, Post, Get, Delete, Param, Body, Req, UseGuards } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiBadRequestResponse,
   ApiCreatedResponse,
   ApiNotFoundResponse,
@@ -16,6 +17,7 @@ import type { AuthenticatedRequest } from '../../types/authenticated-request.js'
 
 @ApiTags('Favorite recipes')
 @Controller('users/me/favorite-recipes')
+@ApiBearerAuth('access-token')
 @UseGuards(JwtAuthGuard)
 export class RecipeFavoritesController {
     constructor(private readonly favoritesService: RecipeFavoritesService) {}

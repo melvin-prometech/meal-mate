@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiBadRequestResponse,
   ApiConflictResponse,
   ApiCreatedResponse,
@@ -25,6 +26,7 @@ import { HouseholdAdminGuard } from '../auth/guards/household-admin.guard.js';
 
 @ApiTags('Meals')
 @Controller('households/:householdId/meals')
+@ApiBearerAuth('access-token')
 @UseGuards(JwtAuthGuard)
 export class MealsController {
   constructor(private readonly mealsService: MealsService) {}

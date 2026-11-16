@@ -1,6 +1,7 @@
 
 import { Param, Body, Controller, Get, Post, Patch, Delete, UseGuards } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiBadRequestResponse,
   ApiCreatedResponse,
   ApiNotFoundResponse,
@@ -22,6 +23,7 @@ import { AdminGuard } from '../auth/guards/admin.guard.js';
 
 @ApiTags('Users')
 @Controller('users')
+@ApiBearerAuth('access-token')
 @UseGuards(JwtAuthGuard, AdminGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}

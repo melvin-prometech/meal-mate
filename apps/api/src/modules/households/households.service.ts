@@ -1,5 +1,5 @@
 import z from 'zod';
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { FindHouseholdByIdDto, HouseholdRole, RemoveHouseholdMemberDto, UpdateHouseholdMemberRoleDto } from '@meal-mate/schemas';
@@ -86,7 +86,7 @@ export class HouseholdsService {
           throw new NotFoundException('User not found');
       }
 
-      const household = householdRepo.create({ name: data.name });
+      const household = householdRepo.create({ name: data.name, creatorUserId: userId });
       const savedHousehold = await householdRepo.save(household);
 
       const member = memberRepo.create({
@@ -174,9 +174,16 @@ export class HouseholdsService {
       throw new NotFoundException('User not found');
     }
 
-    const member = await memberRepo.findOne({ where: { householdId, userId: dto.userId } });
+    const [member, household, earliestMember] = await Promise.all([
+      memberRepo.findOne({ where: { householdId, userId: dto.userId } }),
+      this.householdRepository.findOne({ where: { id: householdId } }),
+      memberRepo.findOne({ where: { householdId }, order: { joinedAt: 'ASC', id: 'ASC' } }),
+    ]);
     if (!member) {
       throw new NotFoundException('User is not a member of this household');
+    }
+    if (member.userId === (household?.creatorUserId ?? earliestMember?.userId)) {
+      throw new ForbiddenException('The household creator role cannot be changed');
     }
 
     member.role = dto.role;

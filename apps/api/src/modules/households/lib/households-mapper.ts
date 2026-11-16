@@ -24,6 +24,7 @@ export function mapHouseholdToResponseDto(
     name: household.name,
     createdAt: household.createdAt,
     updatedAt: household.updatedAt,
+    creatorUserId: household.creatorUserId ?? null,
     members: (household.members ?? []).map(mapMemberToResponseDto),
   };
 }

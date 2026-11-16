@@ -1,6 +1,7 @@
 
 import { Param, Body, Controller, Get, Post, Patch, Delete, Req, UseGuards } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiBadRequestResponse,
   ApiCreatedResponse,
   ApiNotFoundResponse,
@@ -29,6 +30,7 @@ import type { AuthenticatedRequest } from '../../types/authenticated-request.js'
 
 @ApiTags('Recipes')
 @Controller('recipes')
+@ApiBearerAuth('access-token')
 @UseGuards(JwtAuthGuard)
 export class RecipesController {
   constructor(private readonly recipesService: RecipesService) {}

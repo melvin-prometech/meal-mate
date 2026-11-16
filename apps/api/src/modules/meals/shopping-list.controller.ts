@@ -1,5 +1,6 @@
 import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiBadRequestResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -17,6 +18,7 @@ import { HouseholdGuard } from '../auth/guards/household.guard.js';
 
 @ApiTags('Shopping list')
 @Controller('households/:householdId/shopping-list')
+@ApiBearerAuth('access-token')
 @UseGuards(JwtAuthGuard, HouseholdGuard)
 export class ShoppingListController {
   constructor(private readonly mealsService: MealsService) {}

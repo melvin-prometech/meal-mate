@@ -1,4 +1,5 @@
 import {
+  ApiBearerAuth,
   Controller,
   Get,
   Post,
@@ -33,6 +34,7 @@ import { HouseholdAdminGuard } from '../auth/guards/household-admin.guard.js';
 
 @ApiTags('Households')
 @Controller('/households')
+@ApiBearerAuth('access-token')
 @UseGuards(JwtAuthGuard)
 export class HouseholdsController {
     constructor(private readonly householdsService: HouseholdsService) {}
