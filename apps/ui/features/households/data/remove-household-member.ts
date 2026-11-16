@@ -1,6 +1,7 @@
 "use server";
 
 import type { RemoveHouseholdMemberDto } from "@meal-mate/schemas";
+import { revalidatePath } from "next/cache";
 import { authenticatedClient } from "@/lib/authenticated-client";
 
 export async function removeHouseholdMember(
@@ -13,4 +14,6 @@ export async function removeHouseholdMember(
     body: JSON.stringify(data),
   });
   if (!response.ok) throw new Error(`Failed to remove household member (${response.status}).`);
+
+  revalidatePath("/(dashboard)", "layout");
 }

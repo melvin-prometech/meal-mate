@@ -1,6 +1,9 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
+import { BookOpen, CalendarDays, ShoppingCart, Users } from "lucide-react";
 import { getHouseholdById } from "@/features/households/data/get-household-by-id";
+import { Members } from "@/features/households/components/members";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function HouseholdPage({
   params,
@@ -36,17 +39,34 @@ async function HouseholdContent({
         <p className="mb-2 text-sm text-muted-foreground">Household</p>
         <h1 className="text-2xl font-semibold tracking-tight">{household.name}</h1>
       </header>
-      <section className="py-6">
-        <h2 className="mb-4 text-lg font-semibold">Members</h2>
-        <ul className="divide-y divide-border rounded-lg border border-border">
-          {household.members.map((member) => (
-            <li key={member.id} className="flex items-center justify-between gap-4 px-4 py-3">
-              <span className="truncate">{member.firstName} {member.lastName}</span>
-              <span className="shrink-0 text-sm text-muted-foreground">{member.role}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
+      <Tabs defaultValue="meal-planner" className="py-6">
+        <TabsList className="grid h-auto w-full grid-cols-2 sm:inline-grid sm:grid-cols-4">
+          <TabsTrigger value="meal-planner"><CalendarDays />Meal planner</TabsTrigger>
+          <TabsTrigger value="recipes"><BookOpen />Recipes</TabsTrigger>
+          <TabsTrigger value="shopping-list"><ShoppingCart />Shopping List</TabsTrigger>
+          <TabsTrigger value="members"><Users />Members</TabsTrigger>
+        </TabsList>
+        <TabsContent value="meal-planner" className="pt-6">
+          <SectionPlaceholder title="Meal planner" />
+        </TabsContent>
+        <TabsContent value="recipes" className="pt-6">
+          <SectionPlaceholder title="Recipes" />
+        </TabsContent>
+        <TabsContent value="shopping-list" className="pt-6">
+          <SectionPlaceholder title="Shopping List" />
+        </TabsContent>
+        <TabsContent value="members" className="pt-6">
+          <Members householdId={household.id} members={household.members} />
+        </TabsContent>
+      </Tabs>
     </main>
+  );
+}
+
+function SectionPlaceholder({ title }: { title: string }) {
+  return (
+    <section className="flex min-h-48 items-center justify-center rounded-lg border border-dashed border-border text-sm text-muted-foreground">
+      {title} coming soon
+    </section>
   );
 }
