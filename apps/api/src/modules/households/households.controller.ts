@@ -1,5 +1,4 @@
 import {
-  ApiBearerAuth,
   Controller,
   Get,
   Post,
@@ -11,6 +10,7 @@ import {
   Patch,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiTags,
   ApiOkResponse,
   ApiOperation,

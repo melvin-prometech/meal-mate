@@ -9,6 +9,9 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiBadRequestResponse,
+  ApiCreatedResponse,
+  ApiConflictResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
@@ -16,6 +19,8 @@ import {
 } from '@nestjs/swagger';
 import {
   SignInSchema,
+  SignUpSchema,
+  type SignUpDto,
   type SignInDto,
   type SignInResponseDto,
   type UserResponseDto,
@@ -40,6 +45,17 @@ export class AuthController {
     @Body({ schema: SignInSchema }) data: SignInDto,
   ): Promise<SignInResponseDto> {
     return this.authService.signIn(data);
+  }
+
+  @Post('sign-up')
+  @ApiOperation({ summary: 'Create a default-role user account' })
+  @ApiCreatedResponse({ description: 'Account created successfully.' })
+  @ApiBadRequestResponse({ description: 'The request body is invalid.' })
+  @ApiConflictResponse({ description: 'An account with this email already exists.' })
+  signUp(
+    @Body({ schema: SignUpSchema }) data: SignUpDto,
+  ): Promise<UserResponseDto> {
+    return this.authService.signUp(data);
   }
 
   @Get('me')
