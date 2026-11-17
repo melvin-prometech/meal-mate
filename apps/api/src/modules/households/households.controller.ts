@@ -27,6 +27,8 @@ import type { CreateHouseholdDto } from '@meal-mate/schemas';
 import type { HouseholdMemberResponseDto } from '@meal-mate/schemas';
 import type { RemoveHouseholdMemberDto } from '@meal-mate/schemas';
 import type { UpdateHouseholdMemberRoleDto } from '@meal-mate/schemas';
+import type { CreateHouseholdResponseDto, JoinHouseholdDto } from '@meal-mate/schemas';
+import { CreateHouseholdSchema, JoinHouseholdSchema } from '@meal-mate/schemas';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
 import type { AuthenticatedRequest } from '../../types/authenticated-request.js';
 import { HouseholdGuard } from '../auth/guards/household.guard.js';
@@ -38,19 +40,6 @@ import { HouseholdAdminGuard } from '../auth/guards/household-admin.guard.js';
 @UseGuards(JwtAuthGuard)
 export class HouseholdsController {
     constructor(private readonly householdsService: HouseholdsService) {}
-
-    @Get()
-    @ApiOperation({
-        summary: 'Get all households',
-        description:
-        'Retrieves all households including their members with their names and roles.',
-    })
-    @ApiOkResponse({
-        description: 'Successfully retrieved all households.',
-    })
-    async findAll(): Promise<HouseholdResponseDto[]> {
-        return await this.householdsService.findAll();
-    }
 
     @Get('mine')
     @ApiOperation({
@@ -100,13 +89,13 @@ export class HouseholdsController {
         description: 'User not found.',
     })
     async create(
-        @Body() dto: CreateHouseholdDto,
+        @Body({ schema: CreateHouseholdSchema }) dto: CreateHouseholdDto,
         @Req() request: AuthenticatedRequest,
-    ) {
+    ): Promise<CreateHouseholdResponseDto> {
         return await this.householdsService.createHousehold(request.user.id, dto);
     }
 
-    @Post(':householdId/join')
+    @Post('join')
     @ApiOperation({
         summary: 'Join a household',
         description: 'Adds a user as a regular MEMBER to an existing household.',
@@ -124,10 +113,10 @@ export class HouseholdsController {
         description: 'Invalid request body.',
     })
     async addMember(
-        @Param('householdId') householdId: string,
+        @Body({ schema: JoinHouseholdSchema }) dto: JoinHouseholdDto,
         @Req() request: AuthenticatedRequest,
     ): Promise<HouseholdMemberResponseDto> {
-        return await this.householdsService.addMember(householdId, request.user.id);
+        return await this.householdsService.addMember(dto, request.user.id);
     }
 
 

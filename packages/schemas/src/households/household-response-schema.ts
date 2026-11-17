@@ -13,6 +13,7 @@ export const HouseholdMemberResponseSchema = z.object({
 export const HouseholdResponseSchema = z.object({
   id: z.string().uuid(),
   name: z.string(),
+  joinCode: z.string(),
   createdAt: z.date(),
   updatedAt: z.date(),
   creatorUserId: z.string().uuid().nullable(),

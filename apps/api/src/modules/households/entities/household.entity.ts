@@ -18,6 +18,9 @@ export class Household {
   @Column({ type: 'varchar' })
   name: string;
 
+  @Column({ type: 'varchar', length: 6 })
+  joinCode: string;
+
   @Column({ type: 'uuid', nullable: true })
   creatorUserId: string | null;
 
