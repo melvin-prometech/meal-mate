@@ -4,6 +4,8 @@ import { UserRole } from "@meal-mate/schemas";
 import { requireAuth } from "@/features/auth/auth";
 import { getUsers } from "@/features/users/data/get-users";
 import { DeleteUserButton } from "@/features/users/components/delete-user-button";
+import { CreateUserDialog } from "@/features/users/components/create-user-dialog";
+import { EditUserDialog } from "@/features/users/components/edit-user-dialog";
 
 export default async function UsersPage() {
   return (
@@ -27,9 +29,12 @@ async function UsersContent() {
 
   return (
     <main className="mx-auto flex min-h-svh w-full max-w-8xl flex-col px-6 py-8 sm:px-10">
-      <header className="mb-8 border-b border-border pb-6">
-        <p className="mb-2 text-sm text-muted-foreground">Manage MealMate accounts</p>
-        <h1 className="text-2xl font-semibold tracking-tight">Users</h1>
+      <header className="mb-8 flex items-end justify-between gap-4 border-b border-border pb-6">
+        <div>
+          <p className="mb-2 text-sm text-muted-foreground">Manage MealMate accounts</p>
+          <h1 className="text-2xl font-semibold tracking-tight">Users</h1>
+        </div>
+        <CreateUserDialog />
       </header>
 
       {users.length === 0 ? (
@@ -39,19 +44,23 @@ async function UsersContent() {
           <table className="w-full text-left text-sm">
             <thead className="bg-muted/50 text-muted-foreground">
               <tr>
-                <th scope="col" className="px-4 py-3 font-medium">Name</th>
-                <th scope="col" className="px-4 py-3 font-medium">Email</th>
-                <th scope="col" className="px-4 py-3 font-medium">Role</th>
-                <th scope="col" className="px-4 py-3 text-right font-medium">Actions</th>
+                <th scope="col" className="px-4 py-3 text-left font-medium">Name</th>
+                <th scope="col" className="px-4 py-3 text-center font-medium">Email</th>
+                <th scope="col" className="px-4 py-3 text-center font-medium">Role</th>
+                <th scope="col" className="w-0 whitespace-nowrap px-3 py-3 text-center font-medium">Update</th>
+                <th scope="col" className="w-0 whitespace-nowrap px-3 py-3 text-center font-medium">Delete</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {users.map((user) => (
                 <tr key={user.id}>
-                  <td className="px-4 py-3 font-medium">{user.firstName} {user.lastName}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{user.email}</td>
-                  <td className="px-4 py-3">{user.role}</td>
-                  <td className="px-4 py-3 text-right">
+                  <td className="px-4 py-3 text-left font-medium">{user.firstName} {user.lastName}</td>
+                  <td className="px-4 py-3 text-center text-muted-foreground">{user.email}</td>
+                  <td className="px-4 py-3 text-center">{user.role}</td>
+                  <td className="w-0 whitespace-nowrap px-3 py-3 text-center">
+                    <EditUserDialog user={user} />
+                  </td>
+                  <td className="w-0 whitespace-nowrap px-3 py-3 text-center">
                     <DeleteUserButton userId={user.id} userName={`${user.firstName} ${user.lastName}`} />
                   </td>
                 </tr>
