@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { HouseholdRole } from '@meal-mate/schemas';
+import { HouseholdRole } from './households.enum.js';
 
 export const HouseholdMemberResponseSchema = z.object({
   id: z.string().uuid(),
