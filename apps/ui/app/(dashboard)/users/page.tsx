@@ -3,11 +3,9 @@ import { redirect } from "next/navigation";
 import { UserRole } from "@meal-mate/schemas";
 import { requireAuth } from "@/features/auth/auth";
 import { getUsers } from "@/features/users/data/get-users";
+import { DeleteUserButton } from "@/features/users/components/delete-user-button";
 
 export default async function UsersPage() {
-  const { user } = await requireAuth();
-  if (user.role !== UserRole.ADMIN) redirect("/");
-
   return (
     <Suspense
       fallback={
@@ -22,6 +20,9 @@ export default async function UsersPage() {
 }
 
 async function UsersContent() {
+  const { user } = await requireAuth();
+  if (user.role !== UserRole.ADMIN) redirect("/");
+
   const users = await getUsers();
 
   return (
@@ -41,6 +42,7 @@ async function UsersContent() {
                 <th scope="col" className="px-4 py-3 font-medium">Name</th>
                 <th scope="col" className="px-4 py-3 font-medium">Email</th>
                 <th scope="col" className="px-4 py-3 font-medium">Role</th>
+                <th scope="col" className="px-4 py-3 text-right font-medium">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -49,6 +51,9 @@ async function UsersContent() {
                   <td className="px-4 py-3 font-medium">{user.firstName} {user.lastName}</td>
                   <td className="px-4 py-3 text-muted-foreground">{user.email}</td>
                   <td className="px-4 py-3">{user.role}</td>
+                  <td className="px-4 py-3 text-right">
+                    <DeleteUserButton userId={user.id} userName={`${user.firstName} ${user.lastName}`} />
+                  </td>
                 </tr>
               ))}
             </tbody>
