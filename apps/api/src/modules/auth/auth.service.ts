@@ -1,9 +1,11 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import {
   SignInResponseSchema,
+  UserRole,
+  type SignUpDto,
   UserResponseSchema,
   type SignInDto,
   type SignInResponseDto,
@@ -35,6 +37,26 @@ export class AuthService {
       accessToken: await createAccessToken(this.jwtService, user.id),
       user: UserResponseSchema.parse(user),
     });
+  }
+
+  async signUp(data: SignUpDto): Promise<UserResponseDto> {
+    const password = await bcrypt.hash(data.password, 12);
+    const user = this.usersRepository.create({
+      ...data,
+      password,
+      role: UserRole.USER,
+    });
+
+    try {
+      const savedUser = await this.usersRepository.save(user);
+      return UserResponseSchema.parse(savedUser);
+    } catch (error) {
+      const driverError = (error as { driverError?: { code?: string } }).driverError;
+      if (driverError?.code === 'ER_DUP_ENTRY' || driverError?.code === '23505') {
+        throw new ConflictException('An account with this email already exists');
+      }
+      throw error;
+    }
   }
 
   async me(authorizationHeader?: string): Promise<UserResponseDto> {

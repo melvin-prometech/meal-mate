@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -48,11 +49,22 @@ export function SignInForm() {
               type="password"
             />
           </div>
-          {state.message && <p className="text-sm text-destructive">{state.message}</p>}
+          {state.message && (
+            <p className="text-sm text-destructive">{state.message}</p>
+          )}
           <Button className="h-10 w-full" disabled={pending} type="submit">
             Sign in
           </Button>
         </form>
+        <p className="mt-5 text-center text-sm text-muted-foreground">
+          New to MealMate?{" "}
+          <Link
+            className="font-medium text-primary underline-offset-4 hover:underline"
+            href="/sign-up"
+          >
+            Create an account
+          </Link>
+        </p>
       </CardContent>
     </Card>
   );

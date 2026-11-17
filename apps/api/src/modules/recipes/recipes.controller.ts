@@ -1,6 +1,7 @@
 
-import { Param, Body, Controller, Get, Post, Patch, Delete } from '@nestjs/common';
+import { Param, Body, Controller, Get, Post, Patch, Delete, Req, UseGuards } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiBadRequestResponse,
   ApiCreatedResponse,
   ApiNotFoundResponse,
@@ -21,10 +22,16 @@ import type {
   RecipeResponseDto,
   UpdateRecipeDto
 } from '@meal-mate/schemas';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
+import { AdminGuard } from '../auth/guards/admin.guard.js';
+import { UserRole } from '@meal-mate/schemas';
+import type { AuthenticatedRequest } from '../../types/authenticated-request.js';
 
 
 @ApiTags('Recipes')
 @Controller('recipes')
+@ApiBearerAuth('access-token')
+@UseGuards(JwtAuthGuard)
 export class RecipesController {
   constructor(private readonly recipesService: RecipesService) {}
 
@@ -58,8 +65,9 @@ export class RecipesController {
   })
   async createUser(
     @Body({ schema: CreateRecipeSchema }) data: CreateRecipeDto,
+    @Req() request: AuthenticatedRequest,
   ): Promise<CreateRecipeResponseDto> {
-    return this.recipesService.createRecipe(data);
+    return this.recipesService.createRecipe(data, request.user.id);
   }
 
   @Get(':id')
@@ -90,11 +98,13 @@ export class RecipesController {
   async update(
     @Param('id') id: string,
     @Body() updateRecipeDto: UpdateRecipeDto,
+    @Req() request: AuthenticatedRequest,
   ): Promise<CreateRecipeResponseDto> {
-    return this.recipesService.updateRecipe(id, updateRecipeDto);
+    return this.recipesService.updateRecipe(id, updateRecipeDto, request.user.id, request.user.role === UserRole.ADMIN);
   }
 
   @Delete(':id')
+  @UseGuards(AdminGuard)
   @ApiOperation({ summary: 'Delete a recipe' })
   @ApiOkResponse({
     description: 'Recipe deleted successfully',

@@ -11,7 +11,7 @@ export function HouseholdList({ households }: { households: HouseholdResponseDto
   const router = useRouter();
 
   async function handleJoin(householdId: string) {
-    await addHouseholdMember(householdId, { userId });
+    await addHouseholdMember(householdId);
     router.refresh();
     router.push(`/households/${encodeURIComponent(householdId)}`);
   }

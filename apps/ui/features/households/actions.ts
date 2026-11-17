@@ -11,14 +11,13 @@ export async function submitHousehold(
   formData: FormData,
 ): Promise<CreateHouseholdState> {
   const result = CreateHouseholdSchema.safeParse({ name: formData.get("name") });
-  const userId = formData.get("userId");
 
-  if (!result.success || typeof userId !== "string" || !userId) {
+  if (!result.success) {
     return { message: "Enter a household name and try again." };
   }
 
   try {
-    await createHousehold(userId, result.data);
+    await createHousehold(result.data);
     revalidatePath("/households");
     return { success: true };
   } catch {

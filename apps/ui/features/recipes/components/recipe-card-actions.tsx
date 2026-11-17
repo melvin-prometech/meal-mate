@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { addHouseholdRecipe } from "@/features/household-recipes/data/add-household-recipe";
 import { getHouseholdRecipes } from "@/features/household-recipes/data/get-household-recipes";
-import { getHouseholdsByUserId } from "@/features/households/data/get-households-by-user-id";
+import { getMyHouseholds } from "@/features/households/data/get-my-households";
 import { deleteRecipe } from "@/features/recipes/data/delete-recipe";
 import { useUser } from "@/features/users/components/user-provider";
 
@@ -20,7 +20,7 @@ export function RecipeCardActions({ recipeId, recipeTitle, onDeleted }: {
   onDeleted: () => void;
 }) {
   const router = useRouter();
-  const { id: userId, role } = useUser();
+  const { role } = useUser();
   const [open, setOpen] = useState(false);
   const [households, setHouseholds] = useState<HouseholdOption[] | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -29,7 +29,7 @@ export function RecipeCardActions({ recipeId, recipeTitle, onDeleted }: {
   async function loadHouseholds() {
     if (households) return;
     try {
-      const memberships = await getHouseholdsByUserId(userId);
+      const memberships = await getMyHouseholds();
       const options = await Promise.all(memberships.map(async (household) => {
         const savedRecipes = await getHouseholdRecipes(household.id);
         return { id: household.id, name: household.name, saved: savedRecipes.some((item) => item.recipe.id === recipeId) };
@@ -45,7 +45,7 @@ export function RecipeCardActions({ recipeId, recipeTitle, onDeleted }: {
     setBusyId(household.id);
     setError("");
     try {
-      await addHouseholdRecipe(household.id, { recipeId, addedBy: userId });
+      await addHouseholdRecipe(household.id, { recipeId });
       setHouseholds((current) => current?.map((item) => item.id === household.id ? { ...item, saved: !item.saved } : item) ?? null);
       router.refresh();
     } catch {

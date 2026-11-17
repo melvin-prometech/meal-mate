@@ -8,7 +8,6 @@ import {
 } from '@meal-mate/schemas';
 import { Repository } from 'typeorm';
 import { Household } from '../households/entities/household.entity.js';
-import { HouseholdMember } from '../households/entities/household-member.entity.js';
 import { HouseholdRecipe } from '../households/entities/household-recipe.entity.js';
 import { Recipe } from '../recipes/entities/recipe.entity.js';
 import { mapOneRecipeToResponseDto } from '../recipes/lib/recipes.mapper.js';
@@ -22,8 +21,6 @@ export class HouseholdRecipesService {
     private readonly householdRepository: Repository<Household>,
     @InjectRepository(Recipe)
     private readonly recipeRepository: Repository<Recipe>,
-    @InjectRepository(HouseholdMember)
-    private readonly memberRepository: Repository<HouseholdMember>,
   ) {}
 
   async add(householdId: string, recipeId: string, addedBy: string): Promise<HouseholdRecipeResponseDto> {
@@ -32,9 +29,6 @@ export class HouseholdRecipesService {
     }
     if (!(await this.recipeRepository.exists({ where: { id: recipeId } }))) {
       throw new NotFoundException(`Recipe with ID "${recipeId}" not found`);
-    }
-    if (!(await this.memberRepository.exists({ where: { householdId, userId: addedBy } }))) {
-      throw new NotFoundException('User is not a member of this household');
     }
     if (await this.householdRecipeRepository.exists({ where: { householdId, recipeId } })) {
       throw new ConflictException('Recipe is already saved in this household');

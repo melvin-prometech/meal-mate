@@ -15,6 +15,7 @@ export const HouseholdResponseSchema = z.object({
   name: z.string(),
   createdAt: z.date(),
   updatedAt: z.date(),
+  creatorUserId: z.string().uuid().nullable(),
   members: z.array(HouseholdMemberResponseSchema),
 });
 

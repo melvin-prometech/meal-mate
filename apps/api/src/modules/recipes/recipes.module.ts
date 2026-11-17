@@ -9,6 +9,9 @@ import { UsersModule } from '../users/users.module.js';
 import { RecipeFavoritesController } from './recipe-favorites.controller.js';
 import { FavoriteRecipe } from './entities/recipe-favorite.entity.js';
 import { RecipeFavoritesService } from './recipe-favorites.service.js';
+import { AuthModule } from '../auth/auth.module.js';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
+import { AdminGuard } from '../auth/guards/admin.guard.js';
 
 @Module({
   imports: [
@@ -19,8 +22,9 @@ import { RecipeFavoritesService } from './recipe-favorites.service.js';
     ]),
     UsersModule,
     IngredientsModule,
+    AuthModule,
   ],
   controllers: [RecipesController, RecipeFavoritesController],
-  providers: [RecipesService, RecipeFavoritesService],
+  providers: [RecipesService, RecipeFavoritesService, JwtAuthGuard, AdminGuard],
 })
 export class RecipesModule {}

@@ -5,9 +5,12 @@ import {
   Delete,
   Param,
   Body,
+  Req,
+  UseGuards,
   Patch,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiTags,
   ApiOkResponse,
   ApiOperation,
@@ -21,13 +24,18 @@ import {
 import { HouseholdsService } from './households.service.js';
 import type { HouseholdResponseDto } from '@meal-mate/schemas';
 import type { CreateHouseholdDto } from '@meal-mate/schemas';
-import type { AddHouseholdMemberDto } from '@meal-mate/schemas';
 import type { HouseholdMemberResponseDto } from '@meal-mate/schemas';
 import type { RemoveHouseholdMemberDto } from '@meal-mate/schemas';
 import type { UpdateHouseholdMemberRoleDto } from '@meal-mate/schemas';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
+import type { AuthenticatedRequest } from '../../types/authenticated-request.js';
+import { HouseholdGuard } from '../auth/guards/household.guard.js';
+import { HouseholdAdminGuard } from '../auth/guards/household-admin.guard.js';
 
 @ApiTags('Households')
 @Controller('/households')
+@ApiBearerAuth('access-token')
+@UseGuards(JwtAuthGuard)
 export class HouseholdsController {
     constructor(private readonly householdsService: HouseholdsService) {}
 
@@ -44,7 +52,7 @@ export class HouseholdsController {
         return await this.householdsService.findAll();
     }
 
-    @Get('user/:userId')
+    @Get('mine')
     @ApiOperation({
         summary: 'Get households for a user',
         description: 'Retrieves the households that the specified user belongs to.',
@@ -52,13 +60,14 @@ export class HouseholdsController {
     @ApiOkResponse({
         description: 'Successfully retrieved the user\'s households. Returns an empty array if the user has no household memberships.',
     })
-    async findByUserId(
-        @Param('userId') userId: string,
+    async findMine(
+        @Req() request: AuthenticatedRequest,
     ): Promise<HouseholdResponseDto[]> {
-        return this.householdsService.findHouseholdsByUserId(userId);
+        return this.householdsService.findHouseholdsByUserId(request.user.id);
     }
 
     @Get(':householdId')
+    @UseGuards(HouseholdGuard)
     @ApiOperation({
         summary: 'Get household by ID',
         description: 'Retrieves a single household by its ID including its members and their user details.',
@@ -75,7 +84,7 @@ export class HouseholdsController {
         return await this.householdsService.findHouseholdById(householdId);
     }
 
-    @Post('/:userId')
+    @Post()
     @ApiOperation({
         summary: 'Create a new household',
         description:
@@ -91,10 +100,10 @@ export class HouseholdsController {
         description: 'User not found.',
     })
     async create(
-        @Param('userId') userId: string,
         @Body() dto: CreateHouseholdDto,
+        @Req() request: AuthenticatedRequest,
     ) {
-        return await this.householdsService.createHousehold(userId, dto);
+        return await this.householdsService.createHousehold(request.user.id, dto);
     }
 
     @Post(':householdId/join')
@@ -116,13 +125,14 @@ export class HouseholdsController {
     })
     async addMember(
         @Param('householdId') householdId: string,
-        @Body() dto: AddHouseholdMemberDto,
+        @Req() request: AuthenticatedRequest,
     ): Promise<HouseholdMemberResponseDto> {
-        return await this.householdsService.addMember(householdId, dto);
+        return await this.householdsService.addMember(householdId, request.user.id);
     }
 
 
     @Delete(':householdId/members')
+    @UseGuards(HouseholdAdminGuard)
     @ApiOperation({
         summary: 'Remove a member from a household',
         description: 'Removes a user from the specified household.',
@@ -141,6 +151,7 @@ export class HouseholdsController {
     }
 
     @Patch(':householdId/members/role')
+    @UseGuards(HouseholdAdminGuard)
     @ApiOperation({ summary: 'Change a household member role' })
     @ApiOkResponse({ description: 'Member role successfully updated.' })
     @ApiBadRequestResponse({ description: 'Invalid role update request.' })

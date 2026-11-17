@@ -3,11 +3,16 @@
 import { SignInResponseSchema, SignInSchema } from "@meal-mate/schemas";
 import { redirect } from "next/navigation";
 import { apiClient } from "@/lib/api-client";
-import { saveAccessToken } from "./auth";
+import { clearAccessToken, saveAccessToken } from "./auth";
 
 export type SignInState = {
   message?: string;
 };
+
+export async function signOut() {
+  await clearAccessToken();
+  redirect("/login");
+}
 
 export async function signIn(
   _previousState: SignInState,

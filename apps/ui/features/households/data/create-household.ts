@@ -3,8 +3,8 @@
 import type { CreateHouseholdDto } from "@meal-mate/schemas";
 import { authenticatedClient } from "@/lib/authenticated-client";
 
-export async function createHousehold(userId: string, data: CreateHouseholdDto): Promise<{ id: string }> {
-  const response = await authenticatedClient.fetch(`/households/${encodeURIComponent(userId)}`, {
+export async function createHousehold(data: CreateHouseholdDto): Promise<{ id: string }> {
+  const response = await authenticatedClient.fetch("/households", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),

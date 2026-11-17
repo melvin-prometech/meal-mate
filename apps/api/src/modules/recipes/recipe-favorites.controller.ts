@@ -1,5 +1,6 @@
-import { Controller, Post, Get, Delete, Param, Body } from '@nestjs/common';
+import { Controller, Post, Get, Delete, Param, Body, Req, UseGuards } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiBadRequestResponse,
   ApiCreatedResponse,
   ApiNotFoundResponse,
@@ -11,9 +12,13 @@ import {
 import { RecipeFavoritesService } from './recipe-favorites.service.js';
 import type { CreateFavoriteRecipeDto } from '@meal-mate/schemas';
 import { RecipeResponseDto } from '@meal-mate/schemas';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
+import type { AuthenticatedRequest } from '../../types/authenticated-request.js';
 
 @ApiTags('Favorite recipes')
-@Controller('users/:userId/favorite-recipes') 
+@Controller('users/me/favorite-recipes')
+@ApiBearerAuth('access-token')
+@UseGuards(JwtAuthGuard)
 export class RecipeFavoritesController {
     constructor(private readonly favoritesService: RecipeFavoritesService) {}
 
@@ -30,10 +35,10 @@ export class RecipeFavoritesController {
         description: 'The request body is invalid.',
     })
     async add(
-        @Param('userId') userId: string,
         @Body() dto: CreateFavoriteRecipeDto,
+        @Req() request: AuthenticatedRequest,
     ) {
-        return await this.favoritesService.addFavorite(userId, dto.recipeId);
+        return await this.favoritesService.addFavorite(request.user.id, dto.recipeId);
     }
 
     @Get()
@@ -48,9 +53,9 @@ export class RecipeFavoritesController {
         description: 'User not found',
     })
     async getUserFavorites(
-        @Param('userId') userId: string,
+        @Req() request: AuthenticatedRequest,
     ): Promise<RecipeResponseDto[]> {
-        return await this.favoritesService.getUserFavorites(userId);
+        return await this.favoritesService.getUserFavorites(request.user.id);
     }
 
     @Delete(':recipeId')
@@ -65,9 +70,9 @@ export class RecipeFavoritesController {
         description: 'Favorite recipe record not found.',
     })
     async remove(
-        @Param('userId') userId: string,
         @Param('recipeId') recipeId: string,
+        @Req() request: AuthenticatedRequest,
     ): Promise<void> {
-        await this.favoritesService.removeFavorite(userId, recipeId);
+        await this.favoritesService.removeFavorite(request.user.id, recipeId);
     }
 }

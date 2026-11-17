@@ -68,7 +68,7 @@ async function HouseholdContent({
           <ShoppingList key={weekStart} householdId={household.id} items={shoppingList} weekStart={weekStart} />
         </TabsContent>
         <TabsContent value="members" className="pt-6">
-          <Members householdId={household.id} members={household.members} />
+          <Members household={household} />
         </TabsContent>
       </Tabs>
     </main>

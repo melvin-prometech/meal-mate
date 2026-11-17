@@ -1,5 +1,6 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiBadRequestResponse,
   ApiConflictResponse,
   ApiCreatedResponse,
@@ -19,13 +20,19 @@ import {
   type UpdateMealDto,
 } from '@meal-mate/schemas';
 import { MealsService } from './meals.service.js';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
+import { HouseholdGuard } from '../auth/guards/household.guard.js';
+import { HouseholdAdminGuard } from '../auth/guards/household-admin.guard.js';
 
 @ApiTags('Meals')
 @Controller('households/:householdId/meals')
+@ApiBearerAuth('access-token')
+@UseGuards(JwtAuthGuard)
 export class MealsController {
   constructor(private readonly mealsService: MealsService) {}
 
   @Get()
+  @UseGuards(HouseholdGuard)
   @ApiOperation({ summary: 'Get planned meals for a household' })
   @ApiOkResponse({ description: 'Planned meals retrieved.' })
   @ApiBadRequestResponse({ description: 'Date range is invalid.' })
@@ -38,6 +45,7 @@ export class MealsController {
   }
 
   @Post()
+  @UseGuards(HouseholdAdminGuard)
   @ApiOperation({ summary: 'Plan a meal for a household' })
   @ApiCreatedResponse({ description: 'Meal planned.' })
   @ApiBadRequestResponse({ description: 'Request body is invalid.' })
@@ -51,6 +59,7 @@ export class MealsController {
   }
 
   @Patch(':mealId')
+  @UseGuards(HouseholdAdminGuard)
   @ApiOperation({ summary: 'Update a planned meal' })
   @ApiOkResponse({ description: 'Planned meal updated.' })
   @ApiBadRequestResponse({ description: 'Request body is invalid.' })
@@ -65,6 +74,7 @@ export class MealsController {
   }
 
   @Delete(':mealId')
+  @UseGuards(HouseholdAdminGuard)
   @ApiOperation({ summary: 'Remove a planned meal' })
   @ApiNoContentResponse({ description: 'Planned meal removed.' })
   @ApiNotFoundResponse({ description: 'Household or meal not found.' })

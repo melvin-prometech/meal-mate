@@ -9,6 +9,9 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiBadRequestResponse,
+  ApiCreatedResponse,
+  ApiConflictResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
@@ -16,11 +19,15 @@ import {
 } from '@nestjs/swagger';
 import {
   SignInSchema,
+  SignUpSchema,
+  type SignUpDto,
   type SignInDto,
   type SignInResponseDto,
   type UserResponseDto,
 } from '@meal-mate/schemas';
 import { AuthService } from './auth.service.js';
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from './guards/jwt-auth.guard.js';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -40,7 +47,19 @@ export class AuthController {
     return this.authService.signIn(data);
   }
 
+  @Post('sign-up')
+  @ApiOperation({ summary: 'Create a default-role user account' })
+  @ApiCreatedResponse({ description: 'Account created successfully.' })
+  @ApiBadRequestResponse({ description: 'The request body is invalid.' })
+  @ApiConflictResponse({ description: 'An account with this email already exists.' })
+  signUp(
+    @Body({ schema: SignUpSchema }) data: SignUpDto,
+  ): Promise<UserResponseDto> {
+    return this.authService.signUp(data);
+  }
+
   @Get('me')
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access-token')
   @ApiOperation({
     summary: 'Get the user represented by a Bearer access token',

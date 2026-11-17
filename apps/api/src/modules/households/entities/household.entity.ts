@@ -18,6 +18,9 @@ export class Household {
   @Column({ type: 'varchar' })
   name: string;
 
+  @Column({ type: 'uuid', nullable: true })
+  creatorUserId: string | null;
+
   @CreateDateColumn({
     type: 'timestamp',
     precision: 0,
