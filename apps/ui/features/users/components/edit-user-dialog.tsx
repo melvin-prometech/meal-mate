@@ -10,7 +10,7 @@ import { submitUserUpdate } from "@/features/users/actions";
 
 export function EditUserDialog({ user }: { user: UserResponseDto }) {
   const [open, setOpen] = useState(false);
-  const [state, action, pending] = useActionState(submitUserUpdate.bind(null, user.id), {});
+  const [state, action, pending] = useActionState(submitUserUpdate, {});
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -21,6 +21,7 @@ export function EditUserDialog({ user }: { user: UserResponseDto }) {
           <DialogDescription>Update this account’s details and access role.</DialogDescription>
         </DialogHeader>
         <form action={action} className="space-y-5">
+          <input type="hidden" name="userId" value={user.id} />
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block space-y-2 text-sm font-medium" htmlFor={`edit-first-${user.id}`}>
               First name

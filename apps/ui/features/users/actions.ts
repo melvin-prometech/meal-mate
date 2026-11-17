@@ -37,12 +37,16 @@ export async function submitUser(
 }
 
 export async function submitUserUpdate(
-  userId: string,
   _previousState: CreateUserState,
   formData: FormData,
 ): Promise<CreateUserState> {
   const { user } = await requireAuth();
   if (user.role !== UserRole.ADMIN) return { message: "Only admins can update users." };
+
+  const userId = formData.get("userId");
+  if (typeof userId !== "string" || userId.length === 0) {
+    return { message: "Could not identify the user to update." };
+  }
 
   const rawPassword = formData.get("password");
   const result = UpdateUserSchema.safeParse({
