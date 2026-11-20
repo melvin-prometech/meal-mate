@@ -40,10 +40,14 @@ export function HouseholdCard({ household, userId, onJoin, onOpen }: HouseholdCa
         </CardAction>
       </CardHeader>
 
-      <CardContent className="flex flex-1 flex-col gap-3 px-6 pb-6 pt-4 sm:px-8 sm:pb-8">
+      <CardContent className="flex flex-1 items-end justify-between gap-4 px-6 pb-6 pt-4 sm:px-8 sm:pb-8">
         <p className="truncate text-sm text-muted-foreground" title={memberNames}>
           {memberNames || "No members yet"}
         </p>
+        <div className="shrink-0 text-right">
+          <p className="text-xs text-muted-foreground">Join code</p>
+          <p className="select-all font-mono text-sm font-semibold tracking-wider">{household.joinCode}</p>
+        </div>
       </CardContent>
     </Card>
   );

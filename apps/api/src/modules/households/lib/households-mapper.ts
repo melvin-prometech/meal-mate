@@ -22,6 +22,7 @@ export function mapHouseholdToResponseDto(
   return {
     id: household.id,
     name: household.name,
+    joinCode: household.joinCode,
     createdAt: household.createdAt,
     updatedAt: household.updatedAt,
     creatorUserId: household.creatorUserId ?? null,

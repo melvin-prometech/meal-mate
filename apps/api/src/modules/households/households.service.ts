@@ -1,9 +1,10 @@
 import z from 'zod';
+import { randomBytes } from 'node:crypto';
 import { Injectable, NotFoundException, ConflictException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { FindHouseholdByIdDto, HouseholdRole, RemoveHouseholdMemberDto, UpdateHouseholdMemberRoleDto } from '@meal-mate/schemas';
-import { CreateHouseholdDto } from '@meal-mate/schemas';
+import { HouseholdRole, RemoveHouseholdMemberDto, UpdateHouseholdMemberRoleDto } from '@meal-mate/schemas';
+import { CreateHouseholdDto, CreateHouseholdResponseDto, JoinHouseholdDto } from '@meal-mate/schemas';
 
 import { Household } from './entities/household.entity.js';
 import { HouseholdMember } from './entities/household-member.entity.js';
@@ -21,23 +22,6 @@ export class HouseholdsService {
 
     private readonly usersService: UsersService
   ) {}
-
-  async findAll(): Promise<HouseholdResponseDto[]> {
-    const households = await this.householdRepository.find({
-      relations: {
-        members: {
-          user: true, 
-        },
-      },
-      order: {
-        createdAt: 'DESC',
-      },
-    });
-
-    const formatted = mapHouseholdsToResponseDto(households);
-
-    return z.array(HouseholdResponseSchema).parse(formatted);
-  }
 
   async findHouseholdsByUserId(userId: string): Promise<HouseholdResponseDto[]> {
     const households = await this.householdRepository.find({
@@ -77,7 +61,7 @@ export class HouseholdsService {
   async createHousehold(
     userId: string,
     data: CreateHouseholdDto,
-  ): Promise<{ id: string }> {
+  ): Promise<CreateHouseholdResponseDto> {
     return this.householdRepository.manager.transaction(async (manager) => {
       const householdRepo = manager.getRepository(Household);
       const memberRepo = manager.getRepository(HouseholdMember);
@@ -86,7 +70,12 @@ export class HouseholdsService {
           throw new NotFoundException('User not found');
       }
 
-      const household = householdRepo.create({ name: data.name, creatorUserId: userId });
+      let joinCode: string;
+      do {
+        joinCode = randomBytes(3).toString('hex').toUpperCase();
+      } while (await householdRepo.exists({ where: { joinCode } }));
+
+      const household = householdRepo.create({ name: data.name, joinCode, creatorUserId: userId });
       const savedHousehold = await householdRepo.save(household);
 
       const member = memberRepo.create({
@@ -97,22 +86,15 @@ export class HouseholdsService {
 
       await memberRepo.save(member);
 
-      return { id: savedHousehold.id };
+      return { id: savedHousehold.id, joinCode: savedHousehold.joinCode };
     });
   }
 
-  async addMember(
-    householdId: string,
-    userId: string,
-  ): Promise<HouseholdMemberResponseDto> {
+  async addMember(dto: JoinHouseholdDto, userId: string): Promise<HouseholdMemberResponseDto> {
     const memberRepo = this.householdRepository.manager.getRepository(HouseholdMember);
-
-    const householdExists = await this.householdRepository.exists({
-      where: { id: householdId },
-    });
-    if (!householdExists) {
-      throw new NotFoundException(`Household with ID "${householdId}" not found`);
-    }
+    const household = await this.householdRepository.findOne({ where: { joinCode: dto.joinCode.toUpperCase() } });
+    if (!household) throw new NotFoundException('Invalid household join code');
+    const { id: householdId } = household;
 
     if (!(await this.usersService.exists(userId))) {
       throw new NotFoundException('User not found');

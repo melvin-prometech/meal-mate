@@ -4,7 +4,7 @@ import { CreateHouseholdSchema } from "@meal-mate/schemas";
 import { revalidatePath } from "next/cache";
 import { createHousehold } from "./data/create-household";
 
-export type CreateHouseholdState = { message?: string; success?: boolean };
+export type CreateHouseholdState = { message?: string; joinCode?: string; success?: boolean };
 
 export async function submitHousehold(
   _previousState: CreateHouseholdState,
@@ -17,9 +17,9 @@ export async function submitHousehold(
   }
 
   try {
-    await createHousehold(result.data);
+    const created = await createHousehold(result.data);
     revalidatePath("/households");
-    return { success: true };
+    return { success: true, joinCode: created.joinCode };
   } catch {
     return { message: "Could not create the household. Please try again." };
   }

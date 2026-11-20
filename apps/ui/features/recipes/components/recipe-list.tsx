@@ -77,8 +77,8 @@ export function RecipeList({ recipes, favoritesOnly = false, emptyState }: Recip
                   <Heart aria-hidden="true" className={favoriteIds.has(recipe.id) ? "size-6 fill-current text-red-600" : "size-6 text-foreground"} />
                 </Button>
                 <RecipeCardActions
-                  recipeId={recipe.id}
-                  recipeTitle={recipe.title}
+                  recipe={recipe}
+                  allowEdit={!favoritesOnly}
                   onDeleted={() => {
                     setFavoritesLoaded(false);
                     setFavoritesVersion((version) => version + 1);
