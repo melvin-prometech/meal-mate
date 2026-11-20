@@ -29,7 +29,7 @@ export default function HouseholdPage({
 
 async function HouseholdContent({
   params,
-}: PageProps<"/households/[householdId]">) {
+}: Pick<PageProps<"/households/[householdId]">, "params">) {
   const { householdId } = await params;
   const weekStart = getWeekStart();
   let household;

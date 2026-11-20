@@ -86,7 +86,12 @@ function Field({ label, name, type = "text", ...props }: { label: string; name: 
   return <label className="block space-y-2 text-sm font-medium" htmlFor={id}>{label}<Input id={id} name={name} type={type} {...props} /></label>;
 }
 
-function IngredientField({ label, name, value, onChange, ...props }: { label: string; name: string; value: string; onChange: (value: string) => void } & React.ComponentProps<typeof Input>) {
+function IngredientField({ label, name, value, onChange, ...props }: {
+  label: string;
+  name: string;
+  value: string;
+  onChange: (value: string) => void;
+} & Omit<React.ComponentProps<typeof Input>, "onChange">) {
   const id = `${name}-${label.toLowerCase()}`;
-  return <label className="block space-y-2 text-sm font-medium" htmlFor={id}>{label}<Input id={id} name={name} value={value} onChange={(event) => onChange(event.target.value)} {...props} /></label>;
+  return <label className="block space-y-2 text-sm font-medium" htmlFor={id}>{label}<Input id={id} name={name} value={value} onChange={(event) => onChange(event.currentTarget.value)} {...props} /></label>;
 }

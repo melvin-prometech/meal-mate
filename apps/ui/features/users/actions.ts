@@ -32,7 +32,7 @@ export async function submitUser(
     revalidatePath("/users");
     return { success: true };
   } catch {
-    return { message: "Could not create the user. Check whether this email is already in use." };
+    return { message: "Could not create the user" };
   }
 }
 
