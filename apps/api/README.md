@@ -44,6 +44,17 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
+## Seed an administrator
+
+With MySQL running, configure the database connection, `AUTH_JWT_SECRET`, `INITIAL_ADMIN_EMAIL`, and `INITIAL_ADMIN_PASSWORD` in `apps/api/.env`. Run these commands from the repository root:
+
+```bash
+npm run build -w @meal-mate/schemas
+npm run seed:admin -w api
+```
+
+The script initializes the tables and creates an administrator using an unused email address. Start the API as usual and sign in at `POST /auth/sign-in` with the configured credentials. You can remove both `INITIAL_ADMIN_*` settings after seeding.
+
 ## Run tests
 
 ```bash
