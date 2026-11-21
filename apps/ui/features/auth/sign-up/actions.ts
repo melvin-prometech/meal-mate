@@ -31,13 +31,7 @@ export async function signUp(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(result.data),
   });
-
-  if (response.status === 409) {
-    return { message: "An account with this email already exists." };
-  }
-  if (response.status === 400) {
-    return { message: "Check your details and try again." };
-  }
+  
   if (!response.ok) {
     return { message: "We couldn't create your account. Please try again." };
   }
