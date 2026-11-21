@@ -7,6 +7,7 @@ import { HouseholdRecipeList } from "@/features/household-recipes/components/hou
 import { getHouseholdRecipes } from "@/features/household-recipes/data/get-household-recipes";
 import { MealPlanner } from "@/features/meals/components/meal-planner";
 import { ShoppingList } from "@/features/meals/components/shopping-list";
+import { getToday } from "@/features/meals/lib/planning-dates";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function HouseholdPage({
@@ -29,7 +30,7 @@ async function HouseholdContent({
   params,
 }: Pick<PageProps<"/households/[householdId]">, "params">) {
   const { householdId } = await params;
-  const weekStart = getWeekStart();
+  const startDate = getToday();
   let household;
 
   try {
@@ -43,23 +44,41 @@ async function HouseholdContent({
     <main className="mx-auto flex min-h-svh w-full max-w-8xl flex-col px-6 py-8 sm:px-10">
       <header className="border-b border-border pb-6">
         <p className="mb-2 text-sm text-muted-foreground">Household</p>
-        <h1 className="text-2xl font-semibold tracking-tight">{household.name}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">
+          {household.name}
+        </h1>
       </header>
       <Tabs defaultValue="meal-planner" className="py-6">
         <TabsList className="grid h-auto w-full grid-cols-2 sm:inline-grid sm:grid-cols-4">
-          <TabsTrigger value="meal-planner"><CalendarDays />Meal planner</TabsTrigger>
-          <TabsTrigger value="recipes"><BookOpen />Recipes</TabsTrigger>
-          <TabsTrigger value="shopping-list"><ShoppingCart />Shopping List</TabsTrigger>
-          <TabsTrigger value="members"><Users />Members</TabsTrigger>
+          <TabsTrigger value="meal-planner">
+            <CalendarDays />
+            Meal planner
+          </TabsTrigger>
+          <TabsTrigger value="recipes">
+            <BookOpen />
+            Recipes
+          </TabsTrigger>
+          <TabsTrigger value="shopping-list">
+            <ShoppingCart />
+            Shopping List
+          </TabsTrigger>
+          <TabsTrigger value="members">
+            <Users />
+            Members
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="meal-planner" className="pt-6">
-          <MealPlanner household={household} recipes={recipes} weekStart={weekStart} />
+          <MealPlanner
+            household={household}
+            recipes={recipes}
+            startDate={startDate}
+          />
         </TabsContent>
         <TabsContent value="recipes" className="pt-6">
           <HouseholdRecipeList household={household} recipes={recipes} />
         </TabsContent>
         <TabsContent value="shopping-list" className="pt-6">
-          <ShoppingList householdId={household.id} weekStart={weekStart} />
+          <ShoppingList householdId={household.id} startDate={startDate} />
         </TabsContent>
         <TabsContent value="members" className="pt-6">
           <Members household={household} />
@@ -68,12 +87,3 @@ async function HouseholdContent({
     </main>
   );
 }
-
-function getWeekStart(): string {
-  const candidate = new Date();
-  const day = (candidate.getUTCDay() + 6) % 7;
-  candidate.setUTCDate(candidate.getUTCDate() - day);
-  return candidate.toISOString().slice(0, 10);
-}
-
-
