@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { HouseholdRole, type HouseholdResponseDto, type HouseholdRecipeWithRecipeResponseDto, type MealResponseDto } from "@meal-mate/schemas";
 import { ArrowLeft, ArrowRight, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,6 @@ import { useUser } from "@/features/users/components/user-provider";
 type MealPlannerProps = {
   household: HouseholdResponseDto;
   recipes: HouseholdRecipeWithRecipeResponseDto[];
-  meals: MealResponseDto[];
   weekStart: string;
 };
 
@@ -21,15 +20,30 @@ const dateLabel = (date: Date) => date.toISOString().slice(0, 10);
 const displayDate = (date: Date, options: Intl.DateTimeFormatOptions) =>
   new Intl.DateTimeFormat("en", { ...options, timeZone: "UTC" }).format(date);
 
-export function MealPlanner({ household, recipes, meals: initialMeals, weekStart }: MealPlannerProps) {
+export function MealPlanner({ household, recipes, weekStart }: MealPlannerProps) {
   const { id: userId } = useUser();
   const [selectedWeekStart, setSelectedWeekStart] = useState(weekStart);
-  const [meals, setMeals] = useState(initialMeals);
+  const [meals, setMeals] = useState<MealResponseDto[]>([]);
   const [addingDate, setAddingDate] = useState<string | null>(null);
   const [selectedRecipe, setSelectedRecipe] = useState("");
   const [pending, setPending] = useState(false);
   const [isLoadingWeek, setIsLoadingWeek] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    let active = true;
+    setIsLoadingWeek(true);
+    void getMeals(household.id, { from: weekStart, to: addDays(weekStart, 6) })
+      .then((loadedMeals) => {
+        if (active) setMeals(loadedMeals);
+      })
+      .catch(() => {
+        if (active) setError("Could not load this week. Please try again.");
+      })
+      .finally(() => {
+        if (active) setIsLoadingWeek(false);
+      });
+    return () => { active = false; };
+  }, [household.id, weekStart]);
   const canAddMeals = household.members.some(
     (member) => member.userId === userId && member.role === HouseholdRole.ADMIN,
   );
@@ -160,4 +174,10 @@ function getCurrentWeekStart() {
   const start = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
   start.setUTCDate(start.getUTCDate() - day);
   return start;
+}
+
+function addDays(value: string, count: number): string {
+  const date = new Date(`${value}T00:00:00Z`);
+  date.setUTCDate(date.getUTCDate() + count);
+  return date.toISOString().slice(0, 10);
 }

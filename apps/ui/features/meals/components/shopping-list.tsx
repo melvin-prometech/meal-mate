@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ShoppingListItemDto } from "@meal-mate/schemas";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,6 @@ import { getShoppingList } from "@/features/meals/data/get-shopping-list";
 
 type ShoppingListProps = {
   householdId: string;
-  items: ShoppingListItemDto[];
   weekStart: string;
 };
 
@@ -17,11 +16,26 @@ const dateLabel = (date: Date) => date.toISOString().slice(0, 10);
 const displayDate = (date: Date, options: Intl.DateTimeFormatOptions) =>
   new Intl.DateTimeFormat("en", { ...options, timeZone: "UTC" }).format(date);
 
-export function ShoppingList({ householdId, items: initialItems, weekStart }: ShoppingListProps) {
+export function ShoppingList({ householdId, weekStart }: ShoppingListProps) {
   const [selectedWeekStart, setSelectedWeekStart] = useState(weekStart);
-  const [items, setItems] = useState(initialItems);
+  const [items, setItems] = useState<ShoppingListItemDto[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    let active = true;
+    setIsLoading(true);
+    void getShoppingList(householdId, { from: weekStart, to: addDays(weekStart, 6) })
+      .then((loadedItems) => {
+        if (active) setItems(loadedItems);
+      })
+      .catch(() => {
+        if (active) setError("Could not load this week’s shopping list. Please try again.");
+      })
+      .finally(() => {
+        if (active) setIsLoading(false);
+      });
+    return () => { active = false; };
+  }, [householdId, weekStart]);
   const start = new Date(`${selectedWeekStart}T00:00:00Z`);
   const end = new Date(start);
   end.setUTCDate(end.getUTCDate() + 6);
@@ -98,4 +112,10 @@ export function ShoppingList({ householdId, items: initialItems, weekStart }: Sh
       </Card>
     </section>
   );
+}
+
+function addDays(value: string, count: number): string {
+  const date = new Date(`${value}T00:00:00Z`);
+  date.setUTCDate(date.getUTCDate() + count);
+  return date.toISOString().slice(0, 10);
 }

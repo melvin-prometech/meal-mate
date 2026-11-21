@@ -5,9 +5,7 @@ import { getHouseholdById } from "@/features/households/data/get-household-by-id
 import { Members } from "@/features/households/components/members";
 import { HouseholdRecipeList } from "@/features/household-recipes/components/household-recipe-list";
 import { getHouseholdRecipes } from "@/features/household-recipes/data/get-household-recipes";
-import { getMeals } from "@/features/meals/data/get-meals";
 import { MealPlanner } from "@/features/meals/components/meal-planner";
-import { getShoppingList } from "@/features/meals/data/get-shopping-list";
 import { ShoppingList } from "@/features/meals/components/shopping-list";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -39,11 +37,7 @@ async function HouseholdContent({
   } catch {
     notFound();
   }
-  const [recipes, meals, shoppingList] = await Promise.all([
-    getHouseholdRecipes(household.id),
-    getMeals(household.id, { from: weekStart, to: addDays(weekStart, 6) }),
-    getShoppingList(household.id, { from: weekStart, to: addDays(weekStart, 6) }),
-  ]);
+  const recipes = await getHouseholdRecipes(household.id);
 
   return (
     <main className="mx-auto flex min-h-svh w-full max-w-8xl flex-col px-6 py-8 sm:px-10">
@@ -58,14 +52,14 @@ async function HouseholdContent({
           <TabsTrigger value="shopping-list"><ShoppingCart />Shopping List</TabsTrigger>
           <TabsTrigger value="members"><Users />Members</TabsTrigger>
         </TabsList>
-        <TabsContent value="meal-planner" className="pt-6" keepMounted>
-          <MealPlanner key={weekStart} household={household} recipes={recipes} meals={meals} weekStart={weekStart} />
+        <TabsContent value="meal-planner" className="pt-6">
+          <MealPlanner household={household} recipes={recipes} weekStart={weekStart} />
         </TabsContent>
         <TabsContent value="recipes" className="pt-6">
           <HouseholdRecipeList household={household} recipes={recipes} />
         </TabsContent>
-        <TabsContent value="shopping-list" className="pt-6" keepMounted>
-          <ShoppingList key={weekStart} householdId={household.id} items={shoppingList} weekStart={weekStart} />
+        <TabsContent value="shopping-list" className="pt-6">
+          <ShoppingList householdId={household.id} weekStart={weekStart} />
         </TabsContent>
         <TabsContent value="members" className="pt-6">
           <Members household={household} />
@@ -82,9 +76,4 @@ function getWeekStart(): string {
   return candidate.toISOString().slice(0, 10);
 }
 
-function addDays(value: string, count: number): string {
-  const date = new Date(`${value}T00:00:00Z`);
-  date.setUTCDate(date.getUTCDate() + count);
-  return date.toISOString().slice(0, 10);
-}
 
