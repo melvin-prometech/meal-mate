@@ -1,0 +1,176 @@
+import z from 'zod';
+import { randomBytes } from 'node:crypto';
+import { Injectable, NotFoundException, ConflictException, ForbiddenException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { HouseholdRole, RemoveHouseholdMemberDto, UpdateHouseholdMemberRoleDto } from '@meal-mate/schemas';
+import { CreateHouseholdDto, CreateHouseholdResponseDto, JoinHouseholdDto } from '@meal-mate/schemas';
+
+import { Household } from './entities/household.entity.js';
+import { HouseholdMember } from './entities/household-member.entity.js';
+import { User } from '../users/entities/user.entity.js';
+import { UsersService } from '../users/users.service.js';
+import { HouseholdResponseDto, HouseholdResponseSchema, HouseholdMemberResponseDto } from '@meal-mate/schemas';
+import { mapHouseholdsToResponseDto } from './lib/households-mapper.js';
+import { mapMemberToResponseDto, mapHouseholdToResponseDto } from './lib/households-mapper.js';
+
+@Injectable()
+export class HouseholdsService {
+  constructor(
+    @InjectRepository(Household)
+    private readonly householdRepository: Repository<Household>,
+
+    private readonly usersService: UsersService
+  ) {}
+
+  async findHouseholdsByUserId(userId: string): Promise<HouseholdResponseDto[]> {
+    const households = await this.householdRepository.find({
+      where: {
+        members: { userId },
+      },
+      relations: {
+        members: {
+          user: true,
+        },
+      },
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+
+    return z.array(HouseholdResponseSchema).parse(mapHouseholdsToResponseDto(households));
+  }
+
+  async findHouseholdById(householdId: string): Promise<HouseholdResponseDto> {
+    const household = await this.householdRepository.findOne({
+      where: { id: householdId },
+      relations: {
+        members: {
+          user: true, 
+        },
+      },
+    });
+
+    if (!household) {
+      throw new NotFoundException(`Household with ID "${householdId}" not found`);
+    }
+
+    return mapHouseholdToResponseDto(household);
+  }
+
+  async createHousehold(
+    userId: string,
+    data: CreateHouseholdDto,
+  ): Promise<CreateHouseholdResponseDto> {
+    return this.householdRepository.manager.transaction(async (manager) => {
+      const householdRepo = manager.getRepository(Household);
+      const memberRepo = manager.getRepository(HouseholdMember);
+
+      if (!await this.usersService.exists(userId)) {
+          throw new NotFoundException('User not found');
+      }
+
+      let joinCode: string;
+      do {
+        joinCode = randomBytes(3).toString('hex').toUpperCase();
+      } while (await householdRepo.exists({ where: { joinCode } }));
+
+      const household = householdRepo.create({ name: data.name, joinCode, creatorUserId: userId });
+      const savedHousehold = await householdRepo.save(household);
+
+      const member = memberRepo.create({
+          householdId: savedHousehold.id,
+          userId: userId,
+          role: HouseholdRole.ADMIN,
+      });
+
+      await memberRepo.save(member);
+
+      return { id: savedHousehold.id, joinCode: savedHousehold.joinCode };
+    });
+  }
+
+  async addMember(dto: JoinHouseholdDto, userId: string): Promise<HouseholdMemberResponseDto> {
+    const memberRepo = this.householdRepository.manager.getRepository(HouseholdMember);
+    const household = await this.householdRepository.findOne({ where: { joinCode: dto.joinCode.toUpperCase() } });
+    if (!household) throw new NotFoundException('Invalid household join code');
+    const { id: householdId } = household;
+
+    if (!(await this.usersService.exists(userId))) {
+      throw new NotFoundException('User not found');
+    }
+
+    const existingMember = await memberRepo.findOne({
+      where: { householdId, userId },
+    });
+    if (existingMember) {
+      throw new ConflictException('User is already a member of this household');
+    }
+
+    const member = memberRepo.create({
+      householdId,
+      userId,
+      role: HouseholdRole.MEMBER,
+    });
+
+    const savedMember = await memberRepo.save(member);
+    const user = await this.usersService.findOne({id: userId});
+    savedMember.user = user as User;
+
+    return mapMemberToResponseDto(savedMember);
+  }
+
+  async removeMember(
+    householdId: string,
+    dto: RemoveHouseholdMemberDto,
+  ): Promise<void> {
+    const memberRepo = this.householdRepository.manager.getRepository(HouseholdMember);
+
+    if (!(await this.householdRepository.exists({ where: { id: householdId } }))) {
+      throw new NotFoundException(`Household with ID "${householdId}" not found`);
+    }
+    if (!(await this.usersService.exists(dto.userId))) {
+      throw new NotFoundException('User not found');
+    }
+
+    const member = await memberRepo.findOne({
+      where: { householdId, userId: dto.userId },
+    });
+    if (!member) {
+      throw new NotFoundException('User is not a member of this household');
+    }
+
+    await memberRepo.delete({ householdId, userId: dto.userId });
+  }
+
+  async updateMemberRole(
+    householdId: string,
+    dto: UpdateHouseholdMemberRoleDto,
+  ): Promise<HouseholdMemberResponseDto> {
+    const memberRepo = this.householdRepository.manager.getRepository(HouseholdMember);
+
+    if (!(await this.householdRepository.exists({ where: { id: householdId } }))) {
+      throw new NotFoundException(`Household with ID "${householdId}" not found`);
+    }
+    if (!(await this.usersService.exists(dto.userId))) {
+      throw new NotFoundException('User not found');
+    }
+
+    const [member, household, earliestMember] = await Promise.all([
+      memberRepo.findOne({ where: { householdId, userId: dto.userId } }),
+      this.householdRepository.findOne({ where: { id: householdId } }),
+      memberRepo.findOne({ where: { householdId }, order: { joinedAt: 'ASC', id: 'ASC' } }),
+    ]);
+    if (!member) {
+      throw new NotFoundException('User is not a member of this household');
+    }
+    if (member.userId === (household?.creatorUserId ?? earliestMember?.userId)) {
+      throw new ForbiddenException('The household creator role cannot be changed');
+    }
+
+    member.role = dto.role;
+    const savedMember = await memberRepo.save(member);
+    savedMember.user = await this.usersService.findOne({ id: dto.userId }) as User;
+    return mapMemberToResponseDto(savedMember);
+  }
+}

@@ -1,159 +1,86 @@
-# Turborepo starter
+# Meal Mate
 
-This Turborepo starter is maintained by the Turborepo core team.
+Meal Mate is a meal-planning app with a web interface, an API, and a MySQL database.
 
-## Using this example
+## What you need
 
-Run the following command:
+- Node.js 24 or newer and npm 11 or newer
+- Docker Desktop running (it provides the MySQL database)
+- The Meal Mate project ZIP, extracted to a folder
 
-```sh
-npx create-turbo@latest
-```
-
-## What's inside?
-
-This Turborepo includes the following packages/apps:
-
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `@next/eslint-plugin-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+Open a terminal in the extracted project folder and install dependencies:
 
 ```sh
-cd my-turborepo
-turbo build
+npm ci
 ```
 
-Without global `turbo`, use your package manager:
+Copy the provided environment examples to the files the apps load. The API example contains the local database settings, JWT secret, and administrator login credentials; the UI example points to the API.
+
+macOS/Linux/Git Bash:
 
 ```sh
-cd my-turborepo
-npx turbo build
-npm exec turbo build
-npm exec turbo build
+cp apps/api/.env.example apps/api/.env
+cp apps/ui/.env.example apps/ui/.env
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+PowerShell:
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+```powershell
+Copy-Item apps/api/.env.example apps/api/.env
+Copy-Item apps/ui/.env.example apps/ui/.env
+```
+
+Build the shared schemas package before starting the services:
 
 ```sh
-turbo build --filter=docs
+npm run build -w @meal-mate/schemas
 ```
 
-Without global `turbo`:
+## Start Meal Mate
+
+Start the parts in this order: **database → API → UI**. Keep each running service open in its own terminal.
+
+### 1. Database
+
+From the api folder, start MySQL:
 
 ```sh
-npx turbo build --filter=docs
-npm exec turbo build --filter=docs
-npm exec turbo build --filter=docs
+cd apps
+cd api
+docker compose up --build -d
 ```
 
-### Develop
+### 2. API and administrator account
 
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+Create the administrator account using the email and password provided in `apps/api/.env.example`. These credentials are for logging into Meal Mate. Run the seed script once:
 
 ```sh
-cd my-turborepo
-turbo dev
+npm run seed:admin -w api
 ```
 
-Without global `turbo`, use your package manager:
+Build and start the API:
 
 ```sh
-cd my-turborepo
-npx turbo dev
-npm exec turbo dev
-npm exec turbo dev
+npm run start:dev -w api
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+The API runs at [http://localhost:3000](http://localhost:3000).
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+### 3. UI
+
+In another terminal, build and start the web app:
 
 ```sh
-turbo dev --filter=web
+npm run build -w ui
+npm run start -w ui
 ```
 
-Without global `turbo`:
+Open the local URL printed by Next.js (normally [http://localhost:3001](http://localhost:3001)) and sign in with the administrator email and password from the API environment example.
+
+## Stop Meal Mate
+
+Stop the API and UI with `Ctrl+C` in their terminals. Stop MySQL from the project folder:
 
 ```sh
-npx turbo dev --filter=web
-npm exec turbo dev --filter=web
-npm exec turbo dev --filter=web
+docker compose --env-file apps/api/.env -f apps/api/compose.yaml down
 ```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-npm exec turbo login
-npm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-npm exec turbo link
-npm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
