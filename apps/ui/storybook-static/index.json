@@ -1,1 +1,0 @@
-{"v":5,"entries":{"recipes-recipecard--pasta-carbonara":{"type":"story","subtype":"story","id":"recipes-recipecard--pasta-carbonara","name":"Pasta Carbonara","title":"Recipes/RecipeCard","importPath":"./.storybook/stories/recipe-card.stories.tsx","componentPath":"./features/recipes/recipe-card.tsx","tags":["dev","test","manifest"],"exportName":"PastaCarbonara"}}}
