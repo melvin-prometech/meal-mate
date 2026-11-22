@@ -8,8 +8,14 @@ import {
   type HouseholdRecipeWithRecipeResponseDto,
   type MealResponseDto,
 } from "@meal-mate/schemas";
-import { Plus, X } from "lucide-react";
+import { Check, ChevronDown, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { createMeal } from "@/features/meals/data/create-meal";
 import { deleteMeal } from "@/features/meals/data/delete-meal";
@@ -152,21 +158,35 @@ export function MealPlanner({
                   </div>
                 ) : addingDate === date && canAddMeals ? (
                   <div className="space-y-2">
-                    <select
-                      className="h-8 w-full rounded-md border bg-background px-2 text-sm"
-                      value={selectedRecipe}
-                      onChange={(event) =>
-                        setSelectedRecipe(event.target.value)
-                      }
-                      aria-label="Choose a recipe"
-                    >
-                      <option value="">Choose a saved household recipe</option>
-                      {recipes.map(({ id, recipe: item }) => (
-                        <option key={id} value={id}>
-                          {item.title}
-                        </option>
-                      ))}
-                    </select>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger
+                        render={
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="w-full justify-between font-normal"
+                            aria-label="Choose a recipe"
+                          />
+                        }
+                      >
+                        {recipes.find(({ id }) => id === selectedRecipe)?.recipe
+                          .title ?? "Choose recipe"}
+                        <ChevronDown aria-hidden="true" className="size-4 opacity-50" />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-(--anchor-width)">
+                        {recipes.map(({ id, recipe: item }) => (
+                          <DropdownMenuItem
+                            key={id}
+                            onClick={() => setSelectedRecipe(id)}
+                          >
+                            {item.title}
+                            {selectedRecipe === id && (
+                              <Check aria-hidden="true" className="ml-auto size-4" />
+                            )}
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                     <div className="flex gap-2">
                       <Button
                         type="button"
@@ -215,3 +235,5 @@ export function MealPlanner({
     </section>
   );
 }
+
+
