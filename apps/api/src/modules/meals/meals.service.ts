@@ -13,6 +13,7 @@ import { Household } from '../households/entities/household.entity.js';
 import { HouseholdRecipe } from '../households/entities/household-recipe.entity.js';
 import { Meal } from './entities/meal.entity.js';
 import { toDateRange } from '../../lib/date-range.js';
+import { addToTotal } from './lib/lib.js';
 
 @Injectable()
 export class MealsService {
@@ -63,13 +64,11 @@ export class MealsService {
             unit,
           });
         } else {
-          existing.quantity = existing.quantity === null || quantity === null
-            ? null
-            : existing.quantity + quantity;
+          existing.quantity = addToTotal(existing.quantity, quantity);
         }
       }
     }
-    return [...items.values()].sort((a, b) => a.name.localeCompare(b.name));
+    return [...items.values()];
   }
 
   async create(householdId: string, dto: CreateMealDto): Promise<MealResponseDto> {
